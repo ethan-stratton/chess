@@ -58,6 +58,7 @@ public class ChessPiece {
             case BISHOP -> bishopMoves(board, myPosition);
             case KING -> kingMoves(board, myPosition);
             case ROOK -> rookMoves(board, myPosition);
+            case QUEEN -> queenMoves(board, myPosition);
             default -> throw new RuntimeException("Not implemented");
         };
     }
@@ -211,6 +212,12 @@ public class ChessPiece {
             }
 
         }
+        return validMoves;
+    }
+    private Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition){
+        Collection<ChessMove> validMoves = new ArrayList<>();
+        validMoves.addAll(this.rookMoves(board, myPosition));
+        validMoves.addAll(this.bishopMoves(board, myPosition));
         return validMoves;
     }
 
