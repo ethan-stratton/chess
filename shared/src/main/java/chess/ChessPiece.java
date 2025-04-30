@@ -59,6 +59,7 @@ public class ChessPiece {
             case KING -> kingMoves(board, myPosition);
             case ROOK -> rookMoves(board, myPosition);
             case QUEEN -> queenMoves(board, myPosition);
+            case KNIGHT -> knightMoves(board, myPosition);
             default -> throw new RuntimeException("Not implemented");
         };
     }
@@ -218,6 +219,36 @@ public class ChessPiece {
         Collection<ChessMove> validMoves = new ArrayList<>();
         validMoves.addAll(this.rookMoves(board, myPosition));
         validMoves.addAll(this.bishopMoves(board, myPosition));
+        return validMoves;
+    }
+    private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition){
+        Collection<ChessMove> validMoves = new ArrayList<>();
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        //for each direction, move two, then left and right by one
+        //it will always be a valid move (knight can jump and capture)
+        int[][] knightJumps = {
+                {2, 1},
+                {2, -1},
+                {-2, 1},
+                {-2, -1},
+                {1, 2},
+                {-1, 2},
+                {1, -2},
+                {-1, -2}
+        };
+        for (int jump[] : knightJumps){
+          //if isValidPosition, get new move
+            int newRow = row + jump[0];
+            int newCol = col + jump[1];
+            if (isValidPosition(newRow, newCol)){
+                ChessPosition newPosition = new ChessPosition(newRow,newCol);
+                ChessPiece obstructingPiece = board.getPiece(newPosition);
+                if (obstructingPiece == null || obstructingPiece.getTeamColor() != this.getTeamColor()) {
+                    validMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
+            }
+        };
         return validMoves;
     }
 
