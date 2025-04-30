@@ -60,6 +60,7 @@ public class ChessPiece {
             case ROOK -> rookMoves(board, myPosition);
             case QUEEN -> queenMoves(board, myPosition);
             case KNIGHT -> knightMoves(board, myPosition);
+            case PAWN -> pawnMoves(board, myPosition);
             default -> throw new RuntimeException("Not implemented");
         };
     }
@@ -248,8 +249,89 @@ public class ChessPiece {
                     validMoves.add(new ChessMove(myPosition, newPosition, null));
                 }
             }
-        };
+        }
         return validMoves;
     }
 
+
+    private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
+        // white pawns move up, black pawns move down
+        // can move one square forward if unblocked
+        // can move two squares forward from first position if unblocked
+        // can capture diagonally forward
+        // can promote at edge of opposite board
+        Collection<ChessMove> validMoves = new ArrayList<>();
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        int direction;
+        int startRow;
+        int promotionRow;
+
+        //determine direction
+        if (this.getTeamColor() == ChessGame.TeamColor.WHITE){
+            direction = 1; //white
+            startRow = 2;
+            promotionRow = 8;
+        }
+        else{
+            direction = -1; //black
+            startRow = 7;
+            promotionRow = 1;
+        }
+
+        int newRow = row + direction;
+        if (isValidPosition(newRow,col)){
+            ChessPosition goForward = new ChessPosition(newRow, col);
+            if (board.getPiece(goForward) == null){
+                if (newRow == promotionRow){
+                    //promote piece
+                    validMoves.add(new ChessMove(myPosition, goForward, PieceType.KNIGHT));
+                    validMoves.add(new ChessMove(myPosition, goForward, PieceType.QUEEN));
+                    validMoves.add(new ChessMove(myPosition, goForward, PieceType.ROOK));
+                    validMoves.add(new ChessMove(myPosition, goForward, PieceType.BISHOP));
+                } else {
+                    validMoves.add(new ChessMove(myPosition, goForward, null));
+                }
+
+                // en passant
+                if (row == startRow) {
+                    int doubleMove = row + 2 * direction;
+                    ChessPosition forwardTwo = new ChessPosition(doubleMove, col);
+                    if (board.getPiece(forwardTwo) == null) {
+                        validMoves.add(new ChessMove(myPosition, forwardTwo, null));
+                    }
+                }
+            }
+        }
+
+        //capture logic (diagonally)
+        //get the position {1,1}, {1,-1}.
+        //see if the move is valid (in bounds), see if theres a piece there
+        //if there's a piece, add it as a valid move
+        //if we end up in rows 1 or 8, we can promote
+        int[][] capturePosition = {
+                {direction,1},
+                {direction,-1}
+        };
+        for (int position[] : capturePosition){
+            int captureRow = row + position[0];
+            int captureCol = col + position[1];
+            if (isValidPosition(captureRow, captureCol)){
+                ChessPosition newPosition = new ChessPosition(captureRow,captureCol);
+                ChessPiece obstructingPiece = board.getPiece(newPosition);
+                if (obstructingPiece != null && obstructingPiece.getTeamColor() != this.getTeamColor()) {
+                    if (newRow == promotionRow){
+                        validMoves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
+                        validMoves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
+                        validMoves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
+                        validMoves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
+                    } else {
+                        validMoves.add(new ChessMove(myPosition, newPosition, null));
+                    }
+                }
+            }
+
+        }
+        return validMoves;
+    }
 }
