@@ -70,8 +70,9 @@ public class ChessGame {
         // most of this is delegated to ChessMove
         // removes moves that the piece thought ut check make due to check or checkmate
         ChessPiece piece = board.getPiece(startPosition);
-        if (piece == null || piece.getTeamColor() != teamTurn) {
-            return null;
+        if (piece == null) {
+            //return null;
+            return new ArrayList<>(); // pass back empty array for the test
         }
 
         Collection<ChessMove> potentialMoves = piece.pieceMoves(board, startPosition);
@@ -90,6 +91,19 @@ public class ChessGame {
     }
 
     /**
+     * Turn Validation helper method for validMoves
+     * @param startPosition starting position of piece
+     * @return collection of valid moves for current piece, empty collection if no piece or wrong team
+     */
+    public Collection<ChessMove> validTurn(ChessPosition startPosition) {
+        ChessPiece piece = board.getPiece(startPosition);
+        if (piece == null || piece.getTeamColor() != teamTurn) {
+            return new ArrayList<>();
+        }
+        return validMoves(startPosition);
+    }
+
+    /**
      * Makes a move in a chess game
      *
      * @param move chess move to perform
@@ -102,7 +116,7 @@ public class ChessGame {
             throw new InvalidMoveException("Not Your Turn/No Piece in Start Position");
         }
 
-        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+        Collection<ChessMove> validMoves = validTurn(move.getStartPosition());
         if (!validMoves.contains(move)) {
             throw new InvalidMoveException("Unable to Make This Move");
         }
