@@ -30,7 +30,7 @@ public class ChessGame {
     }
 
     /**
-     * Chess Game constructor, game starts as White
+     * Chess Game constructor, game starts as White.
      */
     public ChessGame() {
         this.teamTurn = TeamColor.WHITE;
@@ -39,14 +39,14 @@ public class ChessGame {
     }
 
     /**
-     * @return Which team's turn it is
+     * @return Which team's turn it is.
      */
     public TeamColor getTeamTurn() {
         return teamTurn;
     }
 
     /**
-     * Set's which teams turn it is
+     * Set's which teams turn it is.
      *
      * @param team the team whose turn it is
      */
@@ -55,7 +55,7 @@ public class ChessGame {
     }
 
     /**
-     * Enum identifying the 2 possible teams in a chess game
+     * Enum identifying the 2 possible teams in a chess game.
      */
     public enum TeamColor {
         WHITE,
@@ -131,10 +131,12 @@ public class ChessGame {
             }
 
             int promotionRow;
-            if (piece.getTeamColor() == TeamColor.WHITE){
+            if (piece.getTeamColor() == TeamColor.WHITE) {
                 promotionRow = 8;
             }
-            else { promotionRow = 1; }
+            else {
+                promotionRow = 1;
+            }
             if (move.getEndPosition().getRow() != promotionRow) {
                 throw new InvalidMoveException("Final Rank Must be Reached in Order to Promote");
             }
