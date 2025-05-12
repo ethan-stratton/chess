@@ -61,7 +61,7 @@ public class ChessPiece {
             case QUEEN -> queenMoves(board, myPosition);
             case KNIGHT -> knightMoves(board, myPosition);
             case PAWN -> pawnMoves(board, myPosition);
-            default -> throw new RuntimeException("Not implemented");
+            //default -> throw new RuntimeException("Not implemented");
         };
     }
 
@@ -198,7 +198,7 @@ public class ChessPiece {
                 ChessPosition newMove = new ChessPosition(newRow, newCol);
                 ChessPiece obstructingPiece = board.getPiece(newMove);
                 if (obstructingPiece == null){
-                    System.out.println(newRow + " " + newCol);
+                    //System.out.println(newRow + " " + newCol);
                     validMoves.add(new ChessMove(myPosition, newMove, null));
                     newRow += moveRowByOne;
                     newCol += moveColByOne;
@@ -293,7 +293,7 @@ public class ChessPiece {
                     validMoves.add(new ChessMove(myPosition, goForward, null));
                 }
 
-                // en passant
+                // move twice
                 if (row == startRow) {
                     int doubleMove = row + 2 * direction;
                     ChessPosition forwardTwo = new ChessPosition(doubleMove, col);
@@ -306,7 +306,7 @@ public class ChessPiece {
 
         //capture logic (diagonally)
         //get the position {1,1}, {1,-1}.
-        //see if the move is valid (in bounds), see if theres a piece there
+        //see if the move is valid (in bounds), see if there's a piece there
         //if there's a piece, add it as a valid move
         //if we end up in rows 1 or 8, we can promote
         int[][] capturePosition = {

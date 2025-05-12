@@ -52,6 +52,18 @@ public class ChessBoard {
         return squares[position.getRow()-1][position.getColumn()-1];
     }
 
+    public void movePiece(ChessMove move) {
+        ChessPiece piece = getPiece(move.getStartPosition());
+        squares[move.getEndPosition().getRow()-1][move.getEndPosition().getColumn()-1] = piece;
+        squares[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1] = null;
+    }
+
+    public void undoMove(ChessMove move, ChessPiece capturedPiece) {
+        ChessPiece piece = getPiece(move.getEndPosition());
+        squares[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1] = piece;
+        squares[move.getEndPosition().getRow()-1][move.getEndPosition().getColumn()-1] = capturedPiece;
+    }
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
