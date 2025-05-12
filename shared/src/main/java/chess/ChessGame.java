@@ -104,12 +104,34 @@ public class ChessGame {
 
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
         if (!validMoves.contains(move)) {
-            throw new InvalidMoveException("Move is Invalid");
+            throw new InvalidMoveException("Unable to Make This Move");
         }
 
-        //add pawn promotion logic later
+        // pawn promotion logic
+        if (move.getPromotionPiece() != null) {
+            if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
+                throw new InvalidMoveException("Only Pawns are Able to be Promoted");
+            }
+
+            int promotionRow;
+            if (piece.getTeamColor() == TeamColor.WHITE){
+                promotionRow = 8;
+            }
+            else { promotionRow = 1; }
+            if (move.getEndPosition().getRow() != promotionRow) {
+                throw new InvalidMoveException("Final Rank Must be Reached in Order to Promote");
+            }
+
+            // create the new promoted piece
+            piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+        }
 
         board.movePiece(move);
+
+        if (move.getPromotionPiece() != null) {
+            board.addPiece(move.getEndPosition(), piece);
+        }
+
         if (teamTurn == TeamColor.WHITE){
             teamTurn = TeamColor.BLACK;
         }
@@ -148,6 +170,11 @@ public class ChessGame {
         return false;
     }
 
+    /**
+     *
+     * @param teamColor the teamColor
+     * @return position of King based on color. helper method for finding check and checkmate
+     */
     private ChessPosition findKing(TeamColor teamColor) {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
