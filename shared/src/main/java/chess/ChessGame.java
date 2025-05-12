@@ -29,6 +29,9 @@ public class ChessGame {
         return Objects.hash(teamTurn, board);
     }
 
+    /**
+     * Chess Game constructor, game starts as White
+     */
     public ChessGame() {
         this.teamTurn = TeamColor.WHITE;
         this.board = new ChessBoard();
