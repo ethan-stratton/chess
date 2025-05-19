@@ -2,40 +2,73 @@ package dataAccess;
 
 import model.UserData;
 
+import javax.xml.crypto.Data;
 import java.util.HashSet;
 
 public class MemoryUserDAO implements UserDAO {
 
     private HashSet<UserData> db;
 
-    MemoryUserDAO() {
+    public MemoryUserDAO() {
         db = HashSet.newHashSet(16);
     }
 
     @Override
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
         for (UserData user : db) {
             if (user.username().equals(username)) {
                 return user;
             }
         }
-        return null;
+        throw new DataAccessException("User not found: " + username);
     }
 
     @Override
-    public void createUser(String username, String password, String email) {
-        db.add(new UserData(username, password, email));
+    public void createUser(String username, String password, String email) throws DataAccessException {
+        try {
+            getUser(username);
+        }
+        catch (DataAccessException e) {
+            db.add(new UserData(username, password, email));
+            return;
+        }
+
+        throw new DataAccessException("User already exists: " + username);
+
     }
 
     @Override
-    public boolean authenticateUser(String username, String password) {
+    public void createUser(UserData user) throws DataAccessException {
+        try {
+            getUser(user.username());
+        }
+        catch (DataAccessException e) {
+            db.add(user);
+            return;
+        }
+
+        throw new DataAccessException("User already exists: " + user.username());
+    }
+
+
+    @Override
+    public boolean authenticateUser(String username, String password) throws DataAccessException {
+        boolean userExists = false;
         for (UserData user : db) {
+            if (user.username().equals(username)) {
+                userExists = true;
+            }
             if (user.username().equals(username) &&
                     user.password().equals(password)) {
                 return true;
             }
         }
-        return false;
+        if (userExists) {
+            return false;
+        }
+        else {
+            throw new DataAccessException("User does not exist: " + username);
+        }
     }
 
     @Override

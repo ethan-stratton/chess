@@ -2,12 +2,12 @@ package dataAccess;
 
 import model.GameData;
 import java.util.HashSet;
+import chess.ChessGame;
 
 public interface GameDAO {
-    HashSet<GameData> listGames();
+    HashSet<GameData> listGames(String username);
+    void createGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game);
+    GameData getGame(int gameID) throws DataAccessException;
     void createGame(GameData game);
-    GameData getGame(int gameID);
-    boolean gameExists(int gameID);
-    void updateGame(GameData game);
     void clear();
 }
