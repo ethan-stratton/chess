@@ -2,8 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.*;
-import services.GameService;
-import services.UserAuthService;
+import service.GameService;
+import service.UserAuthService;
 import server.handlers.*;
 import spark.*;
 

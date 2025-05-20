@@ -5,10 +5,9 @@ import com.google.gson.JsonSyntaxException;
 import dataAccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
-import services.UserAuthService;
+import service.UserAuthService;
 import spark.Request;
 import spark.Response;
-import java.util.UUID;
 
 public class UserAuthHandler {
 
