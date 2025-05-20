@@ -18,7 +18,13 @@ public class MemoryAuthDAO implements AuthDAO {
 
     @Override
     public void addAuth(AuthData authData) {
+        //debug
+        System.out.println("Storing token: " + authData.authToken() +
+                " for user: " + authData.username());
         db.add(authData);
+        //debug
+        System.out.println("Current tokens: " +
+                db.stream().map(AuthData::authToken).toList());
     }
 
     @Override
@@ -39,12 +45,15 @@ public class MemoryAuthDAO implements AuthDAO {
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
+        System.out.println("Validating token: " + authToken); // debug
+        System.out.println("Stored tokens: " + db.stream().map(AuthData::authToken).toList());
+
         for (AuthData authData : db) {
             if (authData.authToken().equals(authToken)) {
                 return authData;
             }
         }
-        throw new DataAccessException("Auth Token doesn't exist: " + authToken);
+        throw new DataAccessException("Token not found in database");
     }
 
     @Override

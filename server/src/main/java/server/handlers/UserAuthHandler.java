@@ -56,15 +56,26 @@ public class UserAuthHandler {
     public Object logout(Request req, Response resp) {
         try {
             String authToken = req.headers("authorization");
+
+            // Debug
+            System.out.println("Attempting logout with token: " + authToken);
+
+            if (authToken == null || authToken.isBlank()) {
+                resp.status(401);
+                return "{ \"message\": \"Error: Authorization header missing\" }";
+            }
+
             userAuthService.logoutUser(authToken);
             resp.status(200);
             return "{}";
+
         } catch (DataAccessException e) {
+            System.out.println("Logout failed: " + e.getMessage());
             resp.status(401);
-            return "{ \"message\": \"Error: Unauthorized\" }";
+            return "{ \"message\": \"Error: Invalid authentication token\" }";
         } catch (Exception e) {
             resp.status(500);
-            return "{ \"message\": \"Error: %s\" }".formatted(e.getMessage());
+            return "{ \"message\": \"Error: Internal server error\" }";
         }
     }
 

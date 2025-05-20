@@ -10,8 +10,8 @@ import java.util.UUID;
 
 public class UserAuthService {
 
-    UserDAO userDAO;
-    AuthDAO authDAO;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
 
     public UserAuthService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
@@ -35,7 +35,9 @@ public class UserAuthService {
 
         if (userAuthenticated) {
             String authToken = UUID.randomUUID().toString();
-            return new AuthData(userData.username(), authToken);
+            AuthData authData = new AuthData(userData.username(), authToken);
+            authDAO.addAuth(authData);  // didn't have this line...
+            return authData;
         }
         else {
             throw new DataAccessException("Password is incorrect");
