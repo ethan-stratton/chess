@@ -39,15 +39,12 @@ public class MemoryUserDAO implements UserDAO {
 
     @Override
     public void createUser(UserData user) throws DataAccessException {
-        try {
-            getUser(user.username());
+        for (UserData existing : db) {
+            if (existing.username().equals(user.username())) {
+                throw new DataAccessException("Username already taken");
+            }
         }
-        catch (DataAccessException e) {
-            db.add(user);
-            return;
-        }
-
-        throw new DataAccessException("User already exists: " + user.username());
+        db.add(user);
     }
 
 

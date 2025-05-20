@@ -19,14 +19,34 @@ public class UserAuthService {
     }
 
     public AuthData createUser(UserData userData) throws DataAccessException {
-        String authToken = UUID.randomUUID().toString();
-        AuthData authData = new AuthData(userData.username(), authToken);
-
-        userDAO.createUser(userData);
-        authDAO.addAuth(authData);
-
-        return authData;
+        try {
+            userDAO.createUser(userData);
+            String authToken = UUID.randomUUID().toString();
+            AuthData authData = new AuthData(userData.username(), authToken);
+            authDAO.addAuth(authData);
+            return authData;
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Username already taken");
+        }
     }
+
+    public AuthData loginUser(UserData userData) throws DataAccessException {
+        boolean userAuthenticated = userDAO.authenticateUser(userData.username(), userData.password());
+
+        if (userAuthenticated) {
+            String authToken = UUID.randomUUID().toString();
+            return new AuthData(userData.username(), authToken);
+        }
+        else {
+            throw new DataAccessException("Password is incorrect");
+        }
+    }
+
+    public void logoutUser(String authToken) throws DataAccessException {
+        authDAO.getAuth(authToken); // getAuth throws an exception, debug here
+        authDAO.deleteAuth(authToken);
+    }
+
 
     public void clear() {
         userDAO.clear();

@@ -26,7 +26,7 @@ public class Server {
         gameDAO = new MemoryGameDAO();
 
         userAuthService = new UserAuthService(userDAO, authDAO);
-        gameService = new GameService(gameDAO);
+        gameService = new GameService(gameDAO, authDAO);
 
         userAuthHandler = new UserAuthHandler(userAuthService);
         gameHandler = new GameHandler(gameService);
@@ -36,17 +36,38 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
-        Spark.staticFiles.location("web");
+        Spark.staticFiles.location("/web");
+        Spark.staticFiles.expireTime(600);
 
-
-        Spark.post("/user", userAuthHandler::register);
-        Spark.delete("/db", this::clear);
+        Spark.get("/", (req, res) -> {
+            res.redirect("/index.html");
+            return null;
+        });
 
         // Register your endpoints and handle exceptions here.
+        Spark.init();
+
+        Spark.post("/user", userAuthHandler::register);
+        Spark.post("/session", userAuthHandler::login);
+        Spark.delete("/session", userAuthHandler::logout);
+        Spark.get("/game", gameHandler::listGames);
+        Spark.post("/game", gameHandler::createGame);
+        Spark.put("/game", gameHandler::joinGame);
+        Spark.delete("/db", this::clear);
+
+        System.out.println("Static files configured from: " +
+                getClass().getResource("/web/index.html"));
+        System.out.println("Registered API endpoints:");
+        Spark.routes().forEach(route -> {
+            System.out.println("  " + route.getHttpMethod() + " " + route.getMatchUri());
+        });
 
         Spark.awaitInitialization();
+        System.out.println("Server started successfully on port " + desiredPort);
         return Spark.port();
     }
+
+
 
     public void stop() {
         Spark.stop();
