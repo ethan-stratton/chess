@@ -7,8 +7,6 @@ import service.UserAuthService;
 import server.handlers.*;
 import spark.*;
 
-import java.io.InputStream;
-
 public class Server {
 
     UserDAO userDAO;
@@ -32,13 +30,11 @@ public class Server {
 
         userAuthHandler = new UserAuthHandler(userAuthService);
         gameHandler = new GameHandler(gameService);
-
     }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
-        //Spark.staticFiles.location("/web");
         Spark.staticFiles.externalLocation("src/main/resources/web");
         Spark.staticFiles.expireTime(600);
 
@@ -46,8 +42,6 @@ public class Server {
             res.redirect("/index.html");
             return null;
         });
-
-        // Register your endpoints and handle exceptions here.
 
         Spark.post("/user", userAuthHandler::register);
         Spark.post("/session", userAuthHandler::login);
@@ -58,11 +52,6 @@ public class Server {
         Spark.delete("/db", this::clear);
 
         Spark.awaitInitialization();
-        //System.out.println("Server started successfully on port " + desiredPort);
-
-        //System.out.println("index.html path: " +
-        //        getClass().getResource("/web/index.html"));
-
         return Spark.port();
     }
 

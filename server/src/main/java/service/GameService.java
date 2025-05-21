@@ -36,51 +36,9 @@ public class GameService {
         return gameID;
     }
 
-//    public int joinGame(String authToken, int gameID, String color) throws UnauthorizedUserException, DataAccessException {
-//        AuthData authData;
-//        GameData gameData;
-//        try {
-//            authData = authDAO.getAuth(authToken);
-//        } catch (DataAccessException e) {
-//            throw new UnauthorizedUserException("Authentication Token Incorrect");
-//        }
-//
-//        if (gameDAO.checkGameExists(gameID)) {
-//            gameData = gameDAO.getGame(gameID);
-//        } else {
-//            return 1;
-//        }
-//
-//        String whiteUser = gameData.whiteUsername();
-//        String blackUser = gameData.blackUsername();
-//
-//        if (color != null &&
-//                (color.isEmpty() ||
-//                        !(color.equalsIgnoreCase("WHITE") || color.equalsIgnoreCase("BLACK")))) {
-//            return 1;
-//        }
-//
-//        if (Objects.equals(color, "WHITE")) {
-//            if (whiteUser != null) {
-//                return 2;
-//            } else {
-//                whiteUser = authData.username();
-//            }
-//        } else if (Objects.equals(color, "BLACK")) {
-//            if (blackUser != null) {
-//                return 2;
-//            } else blackUser = authData.username();
-//        } else if (color != null) {
-//            return 1;
-//        }
-//        gameDAO.updateGame(new GameData(gameID, whiteUser, blackUser, gameData.gameName(), gameData.game()));
-//        return 0;
-//    }
-
     public int joinGame(String authToken, int gameID, String color) throws UnauthorizedUserException, DataAccessException, BadRequestException {
 
         if (color == null){
-//            throw new BadRequestException("Cannot be a null value");
             return 1;
         }
 
@@ -119,7 +77,6 @@ public class GameService {
             }
             blackUser = authData.username();
         }
-
 
         gameDAO.updateGame(new GameData(gameID, whiteUser, blackUser, gameData.gameName(), gameData.game()));
         return 0;
