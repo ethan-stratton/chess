@@ -22,7 +22,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void register_Positive() throws Exception {
+    public void register() throws Exception {
         UserData newUser = createTestUser("testUser", "password", "test@email.com");
         AuthData authData = userService.createUser(newUser);
 
@@ -35,7 +35,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void register_NegativeDuplicateUser() throws Exception {
+    public void registerDuplicateUser() throws Exception {
         UserData user = createTestUser("testUser", "password", "test@email.com");
         userService.createUser(user);
 
@@ -44,7 +44,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void login_Positive() throws Exception {
+    public void login() throws Exception {
         UserData user = createTestUser("testUser", "password", "test@email.com");
         userService.createUser(user);
 
@@ -54,7 +54,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void login_NegativeWrongPassword() throws Exception {
+    public void loginWrongPassword() throws Exception {
         UserData realUser = createTestUser("testUser", "password", "test@email.com");
         userService.createUser(realUser);
 
@@ -64,14 +64,14 @@ public class UserServiceTest {
     }
 
     @Test
-    public void login_NegativeNonexistentUser() {
+    public void loginNonexistentUser() {
         UserData fakeUser = createTestUser("noSuchUser", "password", "email@test.com");
         assertThrows(DataAccessException.class, () ->
                 userService.loginUser(fakeUser));
     }
 
     @Test
-    public void logout_Positive() throws Exception {
+    public void logout() throws Exception {
         UserData user = createTestUser("testUser", "password", "test@email.com");
         AuthData authData = userService.createUser(user);
 
@@ -82,13 +82,13 @@ public class UserServiceTest {
     }
 
     @Test
-    public void logout_NegativeInvalidToken() {
+    public void logoutInvalidToken() {
         assertThrows(UnauthorizedUserException.class, () ->
                 userService.logoutUser("invalidToken123"));
     }
 
     @Test
-    public void clear_Positive() throws Exception {
+    public void clear() throws Exception {
         userService.createUser(createTestUser("user1", "pass1", "email1@test.com"));
         userService.createUser(createTestUser("user2", "pass2", "email2@test.com"));
 

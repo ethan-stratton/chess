@@ -24,7 +24,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void listGames_Positive() throws Exception {
+    public void listGames() throws Exception {
         String authToken = createValidAuth("user1");
         gameService.createGame(authToken, "game1");
         gameService.createGame(authToken, "game2");
@@ -33,13 +33,13 @@ public class GameServiceTest {
     }
 
     @Test
-    public void listGames_NegativeInvalidAuth() {
+    public void listGamesInvalidAuth() {
         assertThrows(DataAccessException.class, () ->
                 gameService.listGames("invalid_token"));
     }
 
     @Test
-    public void createGame_Positive() throws Exception {
+    public void createGame() throws Exception {
         String authToken = createValidAuth("user1");
         int gameId = gameService.createGame(authToken, "testGame");
 
@@ -48,13 +48,13 @@ public class GameServiceTest {
     }
 
     @Test
-    public void createGame_NegativeInvalidAuth() {
+    public void createGameInvalidAuth() {
         assertThrows(DataAccessException.class, () ->
                 gameService.createGame("invalid_token", "testGame"));
     }
 
     @Test
-    public void joinGame_PositiveWhite() throws Exception {
+    public void joinGameWhite() throws Exception {
         String authToken = createValidAuth("user1");
         int gameId = gameService.createGame(authToken, "testGame");
 
@@ -64,7 +64,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void joinGame_PositiveBlack() throws Exception {
+    public void joinGameBlack() throws Exception {
         String authToken = createValidAuth("user1");
         int gameId = gameService.createGame(authToken, "testGame");
 
@@ -74,7 +74,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void joinGame_NegativeInvalidColor() throws Exception {
+    public void joinGameInvalidColor() throws Exception {
         String authToken = createValidAuth("user1");
         int gameId = gameService.createGame(authToken, "testGame");
 
@@ -82,7 +82,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void joinGame_NegativeEmptyColor() throws Exception {
+    public void joinGameEmptyColor() throws Exception {
         String authToken = createValidAuth("user1");
         int gameId = gameService.createGame(authToken, "testGame");
 
@@ -90,7 +90,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void joinGame_NegativeSpotTaken() throws Exception {
+    public void joinGameSpotTaken() throws Exception {
         String authToken1 = createValidAuth("user1");
         String authToken2 = createValidAuth("user2");
         int gameId = gameService.createGame(authToken1, "testGame");
@@ -103,13 +103,13 @@ public class GameServiceTest {
     }
 
     @Test
-    public void joinGame_NegativeInvalidGame() throws Exception {
+    public void joinGameInvalidGame() throws Exception {
         String authToken = createValidAuth("user1");
         assertEquals(1, gameService.joinGame(authToken, 9999, "WHITE"));
     }
 
     @Test
-    public void clear_Positive() throws Exception {
+    public void clear() throws Exception {
         String authToken = createValidAuth("user1");
         gameService.createGame(authToken, "game1");
         gameService.clear();
