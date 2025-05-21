@@ -33,15 +33,17 @@ public class GameHandler {
     }
 
     public Object createGame(Request req, Response resp) {
-
-        if (!req.body().contains("\"gameName\":")) {
-            resp.status(400);
-            return "{ \"message\": \"Error: Bad Request\" }";
-        }
-
         try {
             String authToken = req.headers("authorization");
-            int gameID =  gameService.createGame(authToken);
+            record CreateGameData(String gameName) {}
+            CreateGameData createData = new Gson().fromJson(req.body(), CreateGameData.class);
+
+            if (createData.gameName() == null || createData.gameName().isEmpty()) {
+                resp.status(400);
+                return "{ \"message\": \"Error: Bad Request\" }";
+            }
+
+            int gameID = gameService.createGame(authToken, createData.gameName());
             resp.status(200);
             return "{ \"gameID\": %d }".formatted(gameID);
         } catch (DataAccessException e) {
@@ -63,6 +65,14 @@ public class GameHandler {
             String authToken = req.headers("authorization");
             record JoinGameData(String playerColor, int gameID) {}
             JoinGameData joinData = new Gson().fromJson(req.body(), JoinGameData.class);
+
+            if (joinData.playerColor() != null &&
+                    !joinData.playerColor().isEmpty() &&
+                    !joinData.playerColor().equalsIgnoreCase("WHITE") &&
+                    !joinData.playerColor().equalsIgnoreCase("BLACK")) {
+                resp.status(400);
+                return "{ \"message\": \"Error: Bad Request\" }";
+            }
 
             try {
                 int joinStatus = gameService.joinGame(authToken, joinData.gameID(), joinData.playerColor());
