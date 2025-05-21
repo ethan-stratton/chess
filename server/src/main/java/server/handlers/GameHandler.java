@@ -3,6 +3,7 @@ package server.handlers;
 import com.google.gson.Gson;
 import service.GameService;
 import dataAccess.UnauthorizedUserException;
+import dataAccess.BadRequestException;
 import dataAccess.DataAccessException;
 import model.GameData;
 import spark.Request;
@@ -53,39 +54,47 @@ public class GameHandler {
     }
 
     public Object joinGame(Request req, Response resp) {
-
-        if (!req.body().contains("\"gameID\":")) {
-            resp.status(400);
-            return "{ \"message\": \"Error: Bad Request\" }";
-        }
-
         try {
+            if (!req.body().contains("\"gameID\":")) {
+                resp.status(400);
+                return "{ \"message\": \"Error: Bad Request\" }";
+            }
+
             String authToken = req.headers("authorization");
             record JoinGameData(String playerColor, int gameID) {}
             JoinGameData joinData = new Gson().fromJson(req.body(), JoinGameData.class);
-            int joinStatus =  gameService.joinGame(authToken, joinData.gameID(), joinData.playerColor());
-            if (joinStatus == 0) {
-                resp.status(200);
-                return "{}";
-            } else if (joinStatus == 1) {
+
+            try {
+                int joinStatus = gameService.joinGame(authToken, joinData.gameID(), joinData.playerColor());
+
+                switch (joinStatus) {
+                    case 0:
+                        resp.status(200);
+                        return "{}";
+                    case 1:
+                        resp.status(400);
+                        return "{ \"message\": \"Error: Bad Request\" }";
+                    case 2:
+                        resp.status(403);
+                        return "{ \"message\": \"Error: Game Already Taken\" }";
+                    default:
+                        resp.status(500);
+                        return "{ \"message\": \"Error: Unknown status code\" }";
+                }
+            } catch (UnauthorizedUserException e) {
+                resp.status(401);
+                return "{ \"message\": \"Error: Unauthorized\" }";
+            } catch (DataAccessException e) {
+                if (e.getMessage() != null && e.getMessage().contains("Token not found")) {
+                    resp.status(401);
+                    return "{ \"message\": \"Error: Unauthorized\" }";
+                }
                 resp.status(400);
                 return "{ \"message\": \"Error: Bad Request\" }";
-            } else if (joinStatus == 2) {
-                resp.status(403);
-                return "{ \"message\": \"Error: Game Already Taken\" }";
             }
-            resp.status(200);
-            return "{}";
-        } catch (DataAccessException e) {
-            resp.status(400);
-            return "{ \"message\": \"Error: Bad Request\" }";
-        } catch (UnauthorizedUserException e) {
-            resp.status(401);
-            return "{ \"message\": \"Error: Unauthorized\" }";
         } catch (Exception e) {
             resp.status(500);
             return "{ \"message\": \"Error: %s\" }".formatted(e.getMessage());
         }
     }
-
 }

@@ -36,38 +36,75 @@ public class GameService {
         return gameID;
     }
 
-    public int joinGame(String authToken, int gameID, String color) throws UnauthorizedUserException, DataAccessException {
-        AuthData authData;
-        GameData gameData;
-        try {
-            authData = authDAO.getAuth(authToken);
-        } catch (DataAccessException e) {
-            throw new UnauthorizedUserException("Authentication Token Incorrect");
-        }
+//    public int joinGame(String authToken, int gameID, String color) throws UnauthorizedUserException, DataAccessException {
+//        AuthData authData;
+//        GameData gameData;
+//        try {
+//            authData = authDAO.getAuth(authToken);
+//        } catch (DataAccessException e) {
+//            throw new UnauthorizedUserException("Authentication Token Incorrect");
+//        }
+//
+//        if (gameDAO.checkGameExists(gameID)) {
+//            gameData = gameDAO.getGame(gameID);
+//        } else {
+//            return 1;
+//        }
+//
+//        String whiteUser = gameData.whiteUsername();
+//        String blackUser = gameData.blackUsername();
+//
+//        if (color != null &&
+//                (color.isEmpty() ||
+//                        !(color.equalsIgnoreCase("WHITE") || color.equalsIgnoreCase("BLACK")))) {
+//            return 1;
+//        }
+//
+//        if (Objects.equals(color, "WHITE")) {
+//            if (whiteUser != null) {
+//                return 2;
+//            } else {
+//                whiteUser = authData.username();
+//            }
+//        } else if (Objects.equals(color, "BLACK")) {
+//            if (blackUser != null) {
+//                return 2;
+//            } else blackUser = authData.username();
+//        } else if (color != null) {
+//            return 1;
+//        }
+//        gameDAO.updateGame(new GameData(gameID, whiteUser, blackUser, gameData.gameName(), gameData.game()));
+//        return 0;
+//    }
 
-        if (gameDAO.checkGameExists(gameID)) {
-            gameData = gameDAO.getGame(gameID);
-        } else {
+    public int joinGame(String authToken, int gameID, String color) throws UnauthorizedUserException, DataAccessException {
+        AuthData authData = authDAO.getAuth(authToken);
+
+        if (!gameDAO.checkGameExists(gameID)) {
             return 1;
         }
 
+        if (color != null && color.isEmpty()) {
+            return 1;
+        }
+        if (color != null && !color.equalsIgnoreCase("WHITE") && !color.equalsIgnoreCase("BLACK")) {
+            return 1;
+        }
+
+        GameData gameData = gameDAO.getGame(gameID);
         String whiteUser = gameData.whiteUsername();
         String blackUser = gameData.blackUsername();
 
-        //the logic here sets the players up in order that the colors aren't taken
-        if (Objects.equals(color, "WHITE")) {
-            if (whiteUser != null) {
-                return 2;
-            } else {
+        if (color != null) {
+            if (color.equalsIgnoreCase("WHITE")) {
+                if (whiteUser != null) return 2;
                 whiteUser = authData.username();
+            } else if (color.equalsIgnoreCase("BLACK")) {
+                if (blackUser != null) return 2;
+                blackUser = authData.username();
             }
-        } else if (Objects.equals(color, "BLACK")) {
-            if (blackUser != null) {
-                return 2;
-            } else blackUser = authData.username();
-        } else if (color != null) {
-            return 1; // error
         }
+
         gameDAO.updateGame(new GameData(gameID, whiteUser, blackUser, gameData.gameName(), gameData.game()));
         return 0;
     }

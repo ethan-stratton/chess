@@ -10,7 +10,6 @@ public class Main {
             System.out.println("♕ 240 Chess Server: Running on port " + port);
         } catch (Exception e) {
             System.err.println("Failed to start server: " + e.getMessage());
-            e.printStackTrace();
         }
 
     }
