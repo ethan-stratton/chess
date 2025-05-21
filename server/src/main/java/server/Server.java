@@ -1,7 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import dataAccess.*;
+import dataaccess.*;
 import service.GameService;
 import service.UserAuthService;
 import server.handlers.*;
@@ -35,7 +35,8 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
-        Spark.staticFiles.externalLocation("src/main/resources/web");
+        //Spark.staticFiles.externalLocation("src/main/resources/web");
+        Spark.staticFiles.location("web");
         Spark.staticFiles.expireTime(600);
 
         Spark.get("/", (req, res) -> {

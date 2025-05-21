@@ -1,4 +1,4 @@
-package dataAccess;
+package dataaccess;
 
 import model.AuthData;
 import java.util.HashSet;

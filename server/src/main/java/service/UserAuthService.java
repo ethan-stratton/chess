@@ -1,10 +1,10 @@
 package service;
 
-import dataAccess.AuthDAO;
-import dataAccess.DataAccessException;
-import dataAccess.BadRequestException;
-import dataAccess.UnauthorizedUserException;
-import dataAccess.UserDAO;
+import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
+import dataaccess.BadRequestException;
+import dataaccess.UnauthorizedUserException;
+import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
 
@@ -63,7 +63,6 @@ public class UserAuthService {
             throw new UnauthorizedUserException("Invalid authentication token");
         }
     }
-
 
     public void clear() {
         userDAO.clear();

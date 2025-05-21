@@ -1,10 +1,10 @@
 package service;
 
-import dataAccess.AuthDAO;
-import dataAccess.DataAccessException;
-import dataAccess.GameDAO;
-import dataAccess.UnauthorizedUserException;
-import dataAccess.BadRequestException;
+import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
+import dataaccess.GameDAO;
+import dataaccess.UnauthorizedUserException;
+import dataaccess.BadRequestException;
 import model.AuthData;
 import model.GameData;
 
@@ -45,7 +45,8 @@ public class GameService {
         if (!color.isEmpty() &&
                 !color.equalsIgnoreCase("WHITE") &&
                 !color.equalsIgnoreCase("BLACK")) {
-            throw new BadRequestException("Invalid team color");
+            //throw new BadRequestException("Invalid team color");
+            return 1;
         }
 
         AuthData authData = authDAO.getAuth(authToken);

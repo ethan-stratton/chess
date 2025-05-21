@@ -2,9 +2,9 @@ package server.handlers;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import dataAccess.BadRequestException;
-import dataAccess.DataAccessException;
-import dataAccess.UnauthorizedUserException;
+import dataaccess.BadRequestException;
+import dataaccess.DataAccessException;
+import dataaccess.UnauthorizedUserException;
 import model.AuthData;
 import model.UserData;
 import service.UserAuthService;

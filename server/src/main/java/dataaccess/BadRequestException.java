@@ -1,4 +1,4 @@
-package dataAccess;
+package dataaccess;
 
 public class BadRequestException extends Exception {
     public BadRequestException(String message) {
