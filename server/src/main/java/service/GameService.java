@@ -4,11 +4,11 @@ import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.UnauthorizedUserException;
+import dataAccess.BadRequestException;
 import model.AuthData;
 import model.GameData;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 public class GameService {
 
@@ -77,12 +77,14 @@ public class GameService {
 //        return 0;
 //    }
 
-    public int joinGame(String authToken, int gameID, String color) throws UnauthorizedUserException, DataAccessException {
+    public int joinGame(String authToken, int gameID, String color) throws UnauthorizedUserException, DataAccessException, BadRequestException {
+
+
         if (color != null &&
                 !color.isEmpty() &&
                 !color.equalsIgnoreCase("WHITE") &&
                 !color.equalsIgnoreCase("BLACK")) {
-            return 1;
+            throw new BadRequestException("Invalid team color");
         }
 
         AuthData authData = authDAO.getAuth(authToken);

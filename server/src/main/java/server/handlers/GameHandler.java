@@ -56,6 +56,7 @@ public class GameHandler {
     }
 
     public Object joinGame(Request req, Response resp) {
+
         try {
             if (!req.body().contains("\"gameID\":")) {
                 resp.status(400);
@@ -80,6 +81,7 @@ public class GameHandler {
                 switch (joinStatus) {
                     case 0:
                         resp.status(200);
+                        System.out.println("player color: " + joinData.playerColor());
                         return "{}";
                     case 1:
                         resp.status(400);
