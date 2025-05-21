@@ -2,6 +2,8 @@ package service;
 
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
+import dataAccess.BadRequestException;
+import dataAccess.UnauthorizedUserException;
 import dataAccess.UserDAO;
 import model.AuthData;
 import model.UserData;
@@ -18,35 +20,48 @@ public class UserAuthService {
         this.authDAO = authDAO;
     }
 
-    public AuthData createUser(UserData userData) throws DataAccessException {
+    public AuthData createUser(UserData userData) throws DataAccessException, BadRequestException {
+        if (userData == null || userData.username() == null || userData.password() == null || userData.email() == null) {
+            throw new BadRequestException("Missing required fields");
+        }
+
         try {
             userDAO.createUser(userData);
-            String authToken = UUID.randomUUID().toString();
-            AuthData authData = new AuthData(userData.username(), authToken);
-            authDAO.addAuth(authData);
-            return authData;
         } catch (DataAccessException e) {
-            throw new DataAccessException("Username already taken");
+            throw e;
         }
+
+        String authToken = UUID.randomUUID().toString();
+        authDAO.addAuth(authToken, userData.username());
+        return new AuthData(userData.username(), authToken);
     }
 
-    public AuthData loginUser(UserData userData) throws DataAccessException {
-        boolean userAuthenticated = userDAO.authenticateUser(userData.username(), userData.password());
+    public AuthData loginUser(UserData userData) throws DataAccessException, BadRequestException {
+        if (userData == null || userData.username() == null || userData.password() == null) {
+            throw new BadRequestException("Missing required fields");
+        }
 
-        if (userAuthenticated) {
-            String authToken = UUID.randomUUID().toString();
-            AuthData authData = new AuthData(userData.username(), authToken);
-            authDAO.addAuth(authData);  // didn't have this line...
-            return authData;
+        boolean isAuthenticated = userDAO.authenticateUser(userData.username(), userData.password());
+        if (!isAuthenticated) {
+            throw new DataAccessException("Invalid credentials");
         }
-        else {
-            throw new DataAccessException("Password is incorrect");
-        }
+
+        String authToken = UUID.randomUUID().toString();
+        authDAO.addAuth(authToken, userData.username());
+        return new AuthData(userData.username(), authToken);
     }
 
-    public void logoutUser(String authToken) throws DataAccessException {
-        authDAO.getAuth(authToken); // getAuth throws an exception, debug here
-        authDAO.deleteAuth(authToken);
+    public void logoutUser(String authToken) throws DataAccessException, UnauthorizedUserException {
+        if (authToken == null || authToken.isBlank()) {
+            throw new UnauthorizedUserException("Missing authorization token");
+        }
+
+        try {
+            authDAO.getAuth(authToken);
+            authDAO.deleteAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new UnauthorizedUserException("Invalid authentication token");
+        }
     }
 
 

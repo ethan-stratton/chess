@@ -7,6 +7,8 @@ import service.UserAuthService;
 import server.handlers.*;
 import spark.*;
 
+import java.io.InputStream;
+
 public class Server {
 
     UserDAO userDAO;
@@ -39,6 +41,16 @@ public class Server {
         Spark.staticFiles.location("/web");
         Spark.staticFiles.expireTime(600);
 
+        Spark.get("/debug/files", (req, res) -> {
+            res.type("text/plain");
+            try {
+                InputStream in = getClass().getResourceAsStream("/web/index.html");
+                return in != null ? "File exists in /web" : "File missing from /web";
+            } catch (Exception e) {
+                return "Error: " + e.getMessage();
+            }
+        });
+
         Spark.get("/", (req, res) -> {
             res.redirect("/index.html");
             return null;
@@ -55,15 +67,20 @@ public class Server {
         Spark.put("/game", gameHandler::joinGame);
         Spark.delete("/db", this::clear);
 
-        System.out.println("Static files configured from: " +
-                getClass().getResource("/web/index.html"));
-        System.out.println("Registered API endpoints:");
-        Spark.routes().forEach(route -> {
-            System.out.println("  " + route.getHttpMethod() + " " + route.getMatchUri());
-        });
+//        System.out.println("Static files configured from: " +
+//                getClass().getResource("/web/index.html"));
+//        System.out.println("Registered API endpoints:");
+//        Spark.routes().forEach(route -> {
+//            System.out.println("  " + route.getHttpMethod() + " " + route.getMatchUri());
+//        });
 
         Spark.awaitInitialization();
-        System.out.println("Server started successfully on port " + desiredPort);
+        //System.out.println("Server started successfully on port " + desiredPort);
+
+        // Verify paths
+        System.out.println("index.html path: " +
+                getClass().getResource("/web/index.html"));
+
         return Spark.port();
     }
 
