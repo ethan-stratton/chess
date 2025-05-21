@@ -79,9 +79,12 @@ public class GameService {
 
     public int joinGame(String authToken, int gameID, String color) throws UnauthorizedUserException, DataAccessException, BadRequestException {
 
+        if (color == null){
+//            throw new BadRequestException("Cannot be a null value");
+            return 1;
+        }
 
-        if (color != null &&
-                !color.isEmpty() &&
+        if (!color.isEmpty() &&
                 !color.equalsIgnoreCase("WHITE") &&
                 !color.equalsIgnoreCase("BLACK")) {
             throw new BadRequestException("Invalid team color");
@@ -93,10 +96,10 @@ public class GameService {
             return 1;
         }
 
-        if (color != null && color.isEmpty()) {
+        if (color.isEmpty()) {
             return 1;
         }
-        if (color != null && !color.equalsIgnoreCase("WHITE") && !color.equalsIgnoreCase("BLACK")) {
+        if (!color.equalsIgnoreCase("WHITE") && !color.equalsIgnoreCase("BLACK")) {
             return 1;
         }
 
@@ -104,15 +107,19 @@ public class GameService {
         String whiteUser = gameData.whiteUsername();
         String blackUser = gameData.blackUsername();
 
-        if (color != null) {
-            if (color.equalsIgnoreCase("WHITE")) {
-                if (whiteUser != null) return 2;
-                whiteUser = authData.username();
-            } else if (color.equalsIgnoreCase("BLACK")) {
-                if (blackUser != null) return 2;
-                blackUser = authData.username();
+
+        if (color.equalsIgnoreCase("WHITE")) {
+            if (whiteUser != null) {
+                return 2;
             }
+            whiteUser = authData.username();
+        } else if (color.equalsIgnoreCase("BLACK")) {
+            if (blackUser != null) {
+                return 2;
+            }
+            blackUser = authData.username();
         }
+
 
         gameDAO.updateGame(new GameData(gameID, whiteUser, blackUser, gameData.gameName(), gameData.game()));
         return 0;
