@@ -27,9 +27,14 @@ public class Server {
         //authDAO = new MemoryAuthDAO();
         //gameDAO = new MemoryGameDAO();
 
-        userDAO = new SQLUserDAO();
-        authDAO = new SQLAuthDAO();
-        gameDAO = new SQLGameDAO();
+        try {
+            DatabaseManager.initializeDatabase();
+            userDAO = new SQLUserDAO();
+            gameDAO = new SQLGameDAO();
+            authDAO = new SQLAuthDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
 
 
         userAuthService = new UserAuthService(userDAO, authDAO);

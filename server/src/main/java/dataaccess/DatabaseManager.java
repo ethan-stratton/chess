@@ -9,6 +9,8 @@ public class DatabaseManager {
     private static String dbPassword;
     private static String connectionUrl;
 
+    private static boolean initialized = false;
+
     /*
      * Load the database information for the db.properties file.
      */
@@ -33,10 +35,12 @@ public class DatabaseManager {
         return databaseName;
     }
 
-//    public static void initializeDatabase() throws DataAccessException {
-//        createDatabase();
-//        // let DAOs handle it
-//    }
+    public static void initializeDatabase() throws DataAccessException {
+        if (!initialized) {
+            createDatabase();
+            initialized = true;
+        }
+    }
 
     /**
      * Create a connection to the database and sets the catalog based upon the
@@ -52,6 +56,8 @@ public class DatabaseManager {
      */
     public static Connection getConnection() throws DataAccessException {
         try {
+            initializeDatabase(); // ensure DB exists first
+
             //do not wrap the following line with a try-with-resources
             var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
             conn.setCatalog(databaseName);
