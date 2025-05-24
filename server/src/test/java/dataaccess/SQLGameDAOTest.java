@@ -45,7 +45,7 @@ public class SQLGameDAOTest {
     }
 
     @Test
-    public void testCheckGameExistsBadID() {
+    public void testCheckGameDNE() {
         assertFalse(gameDAO.checkGameExists(999));
     }
 
