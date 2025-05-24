@@ -27,28 +27,34 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void addAuth(AuthData authData) {
+    public void addAuth(AuthData authData) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("INSERT INTO auth (username, authToken) VALUES(?, ?)")) {
                 statement.setString(1, authData.username());
                 statement.setString(2, authData.authToken());
                 statement.executeUpdate();
             }
-        } catch (SQLException | DataAccessException e) {
-            return;
+        } catch (SQLException e) {
+            if (e.getMessage().contains("Duplicate entry")) {
+                throw new DataAccessException("Auth token already exists");
+            }
+            throw new DataAccessException("Database connection failed: " + e.getMessage());
         }
     }
 
     @Override
-    public void addAuth(String authToken, String username) {
+    public void addAuth(String authToken, String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("INSERT INTO auth (username, authToken) VALUES(?, ?)")) {
                 statement.setString(1, username);
                 statement.setString(2, authToken);
                 statement.executeUpdate();
             }
-        } catch (SQLException | DataAccessException e) {
-            return;
+        } catch (SQLException e) {
+            if (e.getMessage().contains("Duplicate entry")) {
+                throw new DataAccessException("Auth token already exists");
+            }
+            throw new DataAccessException("Database connection failed: " + e.getMessage());
         }
     }
 
@@ -75,7 +81,10 @@ public class SQLAuthDAO implements AuthDAO {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("DELETE FROM auth WHERE authToken=?")) {
                 statement.setString(1, authToken);
-                statement.executeUpdate();
+                int rowsAffected = statement.executeUpdate();
+                if (rowsAffected == 0) {
+                    throw new DataAccessException("Token not found");
+                }
             }
         } catch (SQLException e) {
             throw new DataAccessException("Database connection failed: " + e.getMessage());
