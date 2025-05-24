@@ -29,6 +29,15 @@ public class DatabaseManager {
         }
     }
 
+    public static String getDatabaseName() {
+        return databaseName;
+    }
+
+//    public static void initializeDatabase() throws DataAccessException {
+//        createDatabase();
+//        // let DAOs handle it
+//    }
+
     /**
      * Create a connection to the database and sets the catalog based upon the
      * properties specified in db.properties. Connections to the database should

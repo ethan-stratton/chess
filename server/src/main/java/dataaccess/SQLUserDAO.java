@@ -8,7 +8,9 @@ public class SQLUserDAO implements UserDAO {
 
     public SQLUserDAO() {
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("chess");
+            //conn.setCatalog("chess");
+            conn.setCatalog(DatabaseManager.getDatabaseName());
+
             var createTestTable = """            
                     CREATE TABLE if NOT EXISTS user (
                                     username VARCHAR(255) NOT NULL,
