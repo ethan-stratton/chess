@@ -39,7 +39,7 @@ public class SQLUserDAO implements UserDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error accessing user: " + e.getMessage());
+            throw new DataAccessException("failed to get connection: " + e.getMessage());
         }
     }
 
@@ -54,13 +54,15 @@ public class SQLUserDAO implements UserDAO {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error creating user: " + e.getMessage());
+            if (e.getMessage().contains("Duplicate entry")) {
+                throw new DataAccessException("Username already taken");
+            }
+            throw new DataAccessException("failed to get connection: " + e.getMessage());
         }
     }
 
     @Override
     public void createUser(UserData user) throws DataAccessException {
-        // delegate to the other createUser method
         createUser(user.username(), user.password(), user.email());
     }
 
@@ -70,14 +72,17 @@ public class SQLUserDAO implements UserDAO {
             UserData user = getUser(username);
             return BCrypt.checkpw(password, user.password());
         } catch (DataAccessException e) {
-            return false; // no user by that name
+            throw e; // re throw OG error message, but:
+        } catch (Exception e) {
+            // wrap other exceptions as DataAccessException
+            throw new DataAccessException("failed to get connection: " + e.getMessage());
         }
     }
 
     @Override
     public void clear() {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("TRUNCATE user")) {
+            try (var statement = conn.prepareStatement("DELETE FROM user")) {
                 statement.executeUpdate();
             }
         } catch (SQLException | DataAccessException e) {

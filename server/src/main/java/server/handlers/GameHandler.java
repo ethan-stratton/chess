@@ -23,11 +23,17 @@ public class GameHandler {
             resp.status(200);
             return "{ \"games\": %s}".formatted(new Gson().toJson(games));
         } catch (DataAccessException e) {
-            resp.status(401);
-            return "{ \"message\": \"Error: Unauthorized\" }";
+            if (e.getMessage().contains("Invalid authentication token") ||
+                    e.getMessage().contains("Token not found")) {
+                resp.status(401);
+                return "{ \"message\": \"Error: Unauthorized\" }";
+            } else {
+                resp.status(500);
+                return "{ \"message\": \"Error: " + e.getMessage() + "\" }";
+            }
         } catch (Exception e) {
             resp.status(500);
-            return "{ \"message\": \"Error: %s\" }".formatted(e.getMessage());
+            return "{ \"message\": \"Error: " + e.getMessage() + "\" }";
         }
     }
 
@@ -46,16 +52,21 @@ public class GameHandler {
             resp.status(200);
             return "{ \"gameID\": %d }".formatted(gameID);
         } catch (DataAccessException e) {
-            resp.status(401);
-            return "{ \"message\": \"Error: Unauthorized\" }";
+            if (e.getMessage().contains("Invalid authentication token") ||
+                    e.getMessage().contains("Token not found")) {
+                resp.status(401);
+                return "{ \"message\": \"Error: Unauthorized\" }";
+            } else {
+                resp.status(500);
+                return "{ \"message\": \"Error: " + e.getMessage() + "\" }";
+            }
         } catch (Exception e) {
             resp.status(500);
-            return "{ \"message\": \"Error: %s\" }".formatted(e.getMessage());
+            return "{ \"message\": \"Error: " + e.getMessage() + "\" }";
         }
     }
 
     public Object joinGame(Request req, Response resp) {
-
         try {
             if (!req.body().contains("\"gameID\":")) {
                 resp.status(400);
@@ -74,38 +85,34 @@ public class GameHandler {
                 return "{ \"message\": \"Error: Bad Request\" }";
             }
 
-            try {
-                int joinStatus = gameService.joinGame(authToken, joinData.gameID(), joinData.playerColor());
+            int joinStatus = gameService.joinGame(authToken, joinData.gameID(), joinData.playerColor());
 
-                switch (joinStatus) {
-                    case 0:
-                        resp.status(200);
-                        System.out.println("player color: " + joinData.playerColor());
-                        return "{}";
-                    case 1:
-                        resp.status(400);
-                        return "{ \"message\": \"Error: Bad Request\" }";
-                    case 2:
-                        resp.status(403);
-                        return "{ \"message\": \"Error: Game Already Taken\" }";
-                    default:
-                        resp.status(500);
-                        return "{ \"message\": \"Error: Unknown status code\" }";
-                }
-            } catch (UnauthorizedUserException e) {
+            switch (joinStatus) {
+                case 0:
+                    resp.status(200);
+                    return "{}";
+                case 1:
+                    resp.status(400);
+                    return "{ \"message\": \"Error: Bad Request\" }";
+                case 2:
+                    resp.status(403);
+                    return "{ \"message\": \"Error: Game Already Taken\" }";
+                default:
+                    resp.status(500);
+                    return "{ \"message\": \"Error: Unknown status code\" }";
+            }
+        } catch (DataAccessException e) {
+            if (e.getMessage().contains("Invalid authentication token") ||
+                    e.getMessage().contains("Token not found")) {
                 resp.status(401);
                 return "{ \"message\": \"Error: Unauthorized\" }";
-            } catch (DataAccessException e) {
-                if (e.getMessage() != null && e.getMessage().contains("Token not found")) {
-                    resp.status(401);
-                    return "{ \"message\": \"Error: Unauthorized\" }";
-                }
-                resp.status(400);
-                return "{ \"message\": \"Error: Bad Request\" }";
+            } else {
+                resp.status(500);
+                return "{ \"message\": \"Error: " + e.getMessage() + "\" }";
             }
         } catch (Exception e) {
             resp.status(500);
-            return "{ \"message\": \"Error: %s\" }".formatted(e.getMessage());
+            return "{ \"message\": \"Error: " + e.getMessage() + "\" }";
         }
     }
 }

@@ -38,6 +38,15 @@ public class ChessGame {
         this.board.resetBoard();
     }
 
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "teamTurn=" + teamTurn +
+                ", board=" + board +
+                '}';
+    }
+
+
     /**
      * @return Which team's turn it is.
      */

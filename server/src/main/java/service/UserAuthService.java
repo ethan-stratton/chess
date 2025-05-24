@@ -8,6 +8,7 @@ import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
 
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class UserAuthService {
@@ -26,14 +27,25 @@ public class UserAuthService {
         }
 
         try {
-            userDAO.createUser(userData);
-        } catch (DataAccessException e) {
-            throw e;
-        }
+            try {
+                userDAO.getUser(userData.username());
+                throw new DataAccessException("Username already taken");
+            } catch (DataAccessException e) {
+                if (!e.getMessage().contains("not found")) {
+                    throw e; // Re-throw other DataAccessExceptions
+                }
+            }
 
-        String authToken = UUID.randomUUID().toString();
-        authDAO.addAuth(authToken, userData.username());
-        return new AuthData(userData.username(), authToken);
+            userDAO.createUser(userData);
+            String authToken = UUID.randomUUID().toString();
+            authDAO.addAuth(authToken, userData.username());
+            return new AuthData(userData.username(), authToken);
+        } catch (Exception e) {
+            if (e.getCause() instanceof SQLException) {
+                throw new DataAccessException("Database connection failed");
+            }
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     public AuthData loginUser(UserData userData) throws DataAccessException, BadRequestException {
@@ -41,6 +53,7 @@ public class UserAuthService {
             throw new BadRequestException("Missing required fields");
         }
 
+        // throw DataAccessException
         boolean isAuthenticated = userDAO.authenticateUser(userData.username(), userData.password());
         if (!isAuthenticated) {
             throw new DataAccessException("Invalid credentials");
@@ -48,24 +61,25 @@ public class UserAuthService {
 
         String authToken = UUID.randomUUID().toString();
         authDAO.addAuth(authToken, userData.username());
+
         return new AuthData(userData.username(), authToken);
     }
 
-    public void logoutUser(String authToken) throws DataAccessException, UnauthorizedUserException {
+    public void logoutUser(String authToken) throws DataAccessException {
         if (authToken == null || authToken.isBlank()) {
-            throw new UnauthorizedUserException("Missing authorization token");
+            throw new DataAccessException("Missing authorization token");
         }
 
         try {
             authDAO.getAuth(authToken);
             authDAO.deleteAuth(authToken);
         } catch (DataAccessException e) {
-            throw new UnauthorizedUserException("Invalid authentication token");
+            throw new DataAccessException("Database operation failed: " + e.getMessage());
         }
     }
 
     public void clear() {
-        userDAO.clear();
         authDAO.clear();
+        userDAO.clear();
     }
 }

@@ -7,6 +7,8 @@ import service.UserAuthService;
 import server.handlers.*;
 import spark.*;
 
+import java.util.Map;
+
 public class Server {
 
     UserDAO userDAO;
@@ -21,10 +23,14 @@ public class Server {
 
     public Server() {
 
-        userDAO = new MemoryUserDAO();
-        authDAO = new MemoryAuthDAO();
-        gameDAO = new MemoryGameDAO();
+        //userDAO = new MemoryUserDAO();
+        //authDAO = new MemoryAuthDAO();
+        //gameDAO = new MemoryGameDAO();
+
         userDAO = new SQLUserDAO();
+        authDAO = new SQLAuthDAO();
+        gameDAO = new SQLGameDAO();
+
 
         userAuthService = new UserAuthService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);
@@ -38,7 +44,7 @@ public class Server {
 
         //Spark.staticFiles.externalLocation("src/main/resources/web");
         Spark.staticFiles.location("web");
-        Spark.staticFiles.expireTime(600);
+        //Spark.staticFiles.expireTime(600);
 
         Spark.get("/", (req, res) -> {
             res.redirect("/index.html");
@@ -67,15 +73,14 @@ public class Server {
         try {
             userAuthService.clear();
             gameService.clear();
-
             resp.status(200);
             return "{}";
         }
         catch (Exception e) {
             resp.status(500);
-            return "{ \"message\": \"Error: %s\"}".formatted(new Gson().toJson(e.getMessage()));
+            //return "{ \"message\": \"Error: %s\"}".formatted(new Gson().toJson(e.getMessage()));
+            return new Gson().toJson(Map.of("message", "Error: " + e.getMessage()));
+
         }
-
-
     }
 }
