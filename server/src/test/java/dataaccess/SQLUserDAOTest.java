@@ -71,14 +71,14 @@ public class SQLUserDAOTest {
     }
 
     @Test
-    public void authenticateReturnsTrueCorrectPassword() throws DataAccessException {
+    public void authenticateReturnsTrue() throws DataAccessException {
         String plainPassword = "correctPass";
         userDAO.createUser("authUser", plainPassword, "auth@test.com");
         assertTrue(userDAO.authenticateUser("authUser", plainPassword));
     }
 
     @Test
-    public void authenticateReturnsFalseWrongPassword() throws DataAccessException {
+    public void authenticateReturnsFalse() throws DataAccessException {
         userDAO.createUser("authUser2", "rightPass", "auth2@test.com");
         assertFalse(userDAO.authenticateUser("authUser2", "wrongPass"));
     }
