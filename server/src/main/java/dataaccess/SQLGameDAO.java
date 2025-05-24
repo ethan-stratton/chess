@@ -12,7 +12,6 @@ public class SQLGameDAO implements GameDAO {
 
     public SQLGameDAO() {
         try (var conn = DatabaseManager.getConnection()) {
-            //conn.setCatalog("chess");
             conn.setCatalog(DatabaseManager.getDatabaseName());
 
             var createTestTable = """            
@@ -57,7 +56,8 @@ public class SQLGameDAO implements GameDAO {
     @Override
     public void createGame(GameData game) {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, chessGame) VALUES(?, ?, ?, ?, ?)")) {
+            try (var statement = conn.prepareStatement("INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, chessGame) VALUES(?, ?, ?, ?, ?)"))
+            {
                 statement.setInt(1, game.gameID());
                 statement.setString(2, game.whiteUsername());
                 statement.setString(3, game.blackUsername());
@@ -73,7 +73,8 @@ public class SQLGameDAO implements GameDAO {
     @Override
     public void createGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, chessGame) VALUES(?, ?, ?, ?, ?)")) {
+            try (var statement = conn.prepareStatement("INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, chessGame) VALUES(?, ?, ?, ?, ?)"))
+            {
                 statement.setInt(1, gameID);
                 statement.setString(2, whiteUsername);
                 statement.setString(3, blackUsername);

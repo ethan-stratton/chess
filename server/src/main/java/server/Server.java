@@ -23,10 +23,6 @@ public class Server {
 
     public Server() {
 
-        //userDAO = new MemoryUserDAO();
-        //authDAO = new MemoryAuthDAO();
-        //gameDAO = new MemoryGameDAO();
-
         try {
             DatabaseManager.initializeDatabase();
             userDAO = new SQLUserDAO();
@@ -35,7 +31,6 @@ public class Server {
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-
 
         userAuthService = new UserAuthService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);
@@ -47,9 +42,7 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
-        //Spark.staticFiles.externalLocation("src/main/resources/web");
         Spark.staticFiles.location("web");
-        //Spark.staticFiles.expireTime(600);
 
         Spark.get("/", (req, res) -> {
             res.redirect("/index.html");
@@ -83,9 +76,7 @@ public class Server {
         }
         catch (Exception e) {
             resp.status(500);
-            //return "{ \"message\": \"Error: %s\"}".formatted(new Gson().toJson(e.getMessage()));
             return new Gson().toJson(Map.of("message", "Error: " + e.getMessage()));
-
         }
     }
 }
