@@ -1,3 +1,4 @@
+
 import com.google.gson.Gson;
 
 import java.io.*;
@@ -11,6 +12,8 @@ public class ServerFacade {
     String baseURL = "http://localhost:8080";
     private String authToken;
     private final Gson gson = new Gson();
+
+
 
     public boolean register(String username, String password, String email) {
         var body = Map.of("username", username, "password", password, "email", email);
@@ -32,10 +35,12 @@ public class ServerFacade {
         return true;
     }
 
-    public boolean createGame(String gameName) {
+    public int createGame(String gameName) {
         var body = Map.of("gameName", gameName);
         Map<String, Object> resp = request("POST", "/game", gson.toJson(body));
-        return !resp.containsKey("Error");
+        //return !resp.containsKey("Error");
+        double gameID = (double) resp.get("gameID");
+        return (int) gameID;
     }
 
     public List<GameData> listGames() {
@@ -43,7 +48,6 @@ public class ServerFacade {
         if (resp.containsKey("Error")) {
             return new ArrayList<>();
         }
-        // needed a more type-safe way to handle the response
         Object games = resp.get("games");
         if (games instanceof List) {
             return (List<GameData>) games;

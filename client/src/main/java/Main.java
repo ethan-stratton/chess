@@ -13,7 +13,7 @@ public class Main {
 
         System.out.println(server.listGames());
 
-        //"false" error here when wrong gameID
+        //"false" error here when wrong gameID, or gameID in use by another color already
         System.out.println(server.joinGame(8716, "WHITE"));
 
         //above line should change what games are listed with whiteUsername
