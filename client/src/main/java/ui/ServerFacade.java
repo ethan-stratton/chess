@@ -1,3 +1,4 @@
+package ui;
 
 import com.google.gson.Gson;
 
@@ -12,8 +13,6 @@ public class ServerFacade {
     String baseURL = "http://localhost:8080";
     private String authToken;
     private final Gson gson = new Gson();
-
-
 
     public boolean register(String username, String password, String email) {
         var body = Map.of("username", username, "password", password, "email", email);
