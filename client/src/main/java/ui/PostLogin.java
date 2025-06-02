@@ -26,6 +26,7 @@ public class PostLogin {
                     break;
                 case "list":
                     out.println(server.listGames());
+                    //server.printGamesFormatted();
                     break;
                 case "create":
                     if (input.length != 2) {

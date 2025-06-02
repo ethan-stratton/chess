@@ -42,6 +42,7 @@ public class ServerFacade {
         return (int) gameID;
     }
 
+    //TODO make this more formatted and better looking
     public List<GameData> listGames() {
         Map<String, Object> resp = request("GET", "/game");
         if (resp.containsKey("Error")) {
@@ -52,6 +53,15 @@ public class ServerFacade {
             return (List<GameData>) games;
         }
         return new ArrayList<>();
+    }
+
+    public void printGamesFormatted() {
+        Map<String, Object> resp = request("GET", "/game");
+
+        System.out.println("\n═══════════════════════════════════════════════");
+        System.out.println("               AVAILABLE CHESS GAMES            ");
+        System.out.println("═══════════════════════════════════════════════\n");
+
     }
 
     public boolean joinGame(int gameId, String playerColor) {
