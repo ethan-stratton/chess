@@ -17,12 +17,14 @@ public class ServerFacadeTests {
 
     @AfterAll
     static void stopServer() {
+
         server.stop();
     }
 
 
     @Test
     public void sampleTest() {
+
         Assertions.assertTrue(true);
     }
 
