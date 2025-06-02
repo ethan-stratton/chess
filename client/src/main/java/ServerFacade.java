@@ -2,59 +2,94 @@ import com.google.gson.Gson;
 
 import java.io.*;
 import java.net.*;
-import java.util.Map;
+import java.util.*;
+
+import model.GameData;
 
 public class ServerFacade {
 
     String baseURL = "http://localhost:8080";
-    String authToken;
-
+    private String authToken;
     private final Gson gson = new Gson();
 
     public boolean register(String username, String password, String email) {
         var body = Map.of("username", username, "password", password, "email", email);
-        return post("/user", gson.toJson(body));
+        Map<String, Object> resp = request("POST", "/user", gson.toJson(body));
+        if (resp.containsKey("Error")) {
+            return false;
+        }
+        authToken = (String) resp.get("authToken");
+        return true;
     }
 
     public boolean login(String username, String password) {
         var body = Map.of("username", username, "password", password);
-        return post("/session", gson.toJson(body));
-    }
-
-
-    public boolean post(String endpoint, String body) {
-        try {
-            HttpURLConnection http = (HttpURLConnection) new URL(baseURL + endpoint).openConnection();
-            http.setRequestMethod("POST");
-            http.setDoOutput(true);
-            http.setRequestProperty("Content-Type", "application/json");
-
-            // Send request
-            try (OutputStream os = http.getOutputStream()) {
-                os.write(body.getBytes());
-            }
-
-            // Check response code
-            int status = http.getResponseCode();
-
-            if (status == 200) {  // Success case
-                try (InputStream is = http.getInputStream()) {
-                    String response = new String(is.readAllBytes());
-                    authToken = new Gson().fromJson(response, Map.class).get("authToken").toString();
-                    return true;
-                }
-            } else {  // Error case
-                try (InputStream is = http.getErrorStream()) {
-                    String errorResponse = is != null ? new String(is.readAllBytes()) : "No error details";
-                    System.err.println("Server error (" + status + "): " + errorResponse);
-                }
-                return false;
-            }
-
-        } catch (Exception e) {
-            System.err.println("Request failed: " + e.getMessage());
+        Map<String, Object> resp = request("POST", "/session", gson.toJson(body));
+        if (resp.containsKey("Error")) {
             return false;
         }
+        authToken = (String) resp.get("authToken");
+        return true;
     }
 
+    public boolean createGame(String gameName) {
+        var body = Map.of("gameName", gameName);
+        Map<String, Object> resp = request("POST", "/game", gson.toJson(body));
+        return !resp.containsKey("Error");
+    }
+
+    public List<GameData> listGames() {
+        Map<String, Object> resp = request("GET", "/game");
+        if (resp.containsKey("Error")) {
+            return new ArrayList<>();
+        }
+        // needed a more type-safe way to handle the response
+        Object games = resp.get("games");
+        if (games instanceof List) {
+            return (List<GameData>) games;
+        }
+        return new ArrayList<>();
+    }
+
+    public boolean joinGame(int gameId, String playerColor) {
+        var body = Map.of("gameID", gameId, "playerColor", playerColor);
+        Map<String, Object> resp = request("PUT", "/game", gson.toJson(body));
+        return !resp.containsKey("Error");
+    }
+
+    public Map<String, Object> request(String method, String endpoint) {
+        return request(method, endpoint, null);
+    }
+
+    public Map<String, Object> request(String method, String endpoint, String body) {
+        try {
+            URI uri = new URI(baseURL + endpoint);
+            HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
+            http.setRequestMethod(method);
+
+            if (authToken != null) {
+                http.addRequestProperty("authorization", authToken);
+            }
+            if (body != null && !body.isEmpty()) {
+                http.setDoOutput(true);
+                http.addRequestProperty("Content-Type", "application/json");
+                try (var outputStream = http.getOutputStream()) {
+                    outputStream.write(body.getBytes());
+                }
+            }
+
+            http.connect();
+
+            if (http.getResponseCode() == 401) {
+                return Map.of("Error", "Unauthorized");
+            }
+
+            try (InputStream respBody = http.getInputStream()) {
+                InputStreamReader inputStreamReader = new InputStreamReader(respBody);
+                return gson.fromJson(inputStreamReader, Map.class);
+            }
+        } catch (URISyntaxException | IOException e) {
+            return Map.of("Error", e.getMessage());
+        }
+    }
 }

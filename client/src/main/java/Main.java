@@ -3,15 +3,21 @@ public class Main {
     public static void main(String[] args) {
 
         ServerFacade server = new ServerFacade();
-//        System.out.println(server.register("1","2","3"));
-//        System.out.println(server.login("1","2"));
+        //Debug for register and login:
+        String uniqueUsername = "user" + System.currentTimeMillis(); //before was getting error code 403 for using same username to login, generated new username
 
-        //before was getting error code 403 for using same username to login
-        //Debug:
-        String uniqueUsername = "user" + System.currentTimeMillis();
         System.out.println(server.register(uniqueUsername, "password123", "test@email.com"));
         System.out.println(server.login(uniqueUsername, "password123"));
 
+        System.out.println(server.createGame("game1"));
+
+        System.out.println(server.listGames());
+
+        //"false" error here when wrong gameID
+        System.out.println(server.joinGame(8716, "WHITE"));
+
+        //above line should change what games are listed with whiteUsername
+        System.out.println(server.listGames());
 
     }
 }
