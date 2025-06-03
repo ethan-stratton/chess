@@ -8,6 +8,9 @@ import dataaccess.BadRequestException;
 import model.AuthData;
 import model.GameData;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+
 import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
 public class GameService {
@@ -32,7 +35,13 @@ public class GameService {
             gameID = ThreadLocalRandom.current().nextInt(1, 10000); // in case the game ID is in use, will find another one
         } while (gameDAO.checkGameExists(gameID));
 
-        gameDAO.createGame(new GameData(gameID, null, null, gameName, null));
+        //gameDAO.createGame(new GameData(gameID, null, null, gameName, null));
+        ChessGame game = new ChessGame();
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        game.setBoard(board);
+        gameDAO.createGame(new GameData(gameID, null, null, gameName, game));
+
         return gameID;
     }
 

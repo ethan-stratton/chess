@@ -5,6 +5,8 @@ import service.GameService;
 import dataaccess.UnauthorizedUserException;
 import dataaccess.DataAccessException;
 import model.GameData;
+import model.GamesList;
+
 import spark.Request;
 import spark.Response;
 import java.util.HashSet;
@@ -19,9 +21,13 @@ public class GameHandler {
     public Object listGames(Request req, Response resp) {
         try {
             String authToken = req.headers("authorization");
-            HashSet<GameData> games = gameService.listGames(authToken);
+            //HashSet<GameData> games = gameService.listGames(authToken);
+            GamesList games = new GamesList(gameService.listGames(authToken));
+
             resp.status(200);
-            return "{ \"games\": %s}".formatted(new Gson().toJson(games));
+            //return "{ \"games\": %s}".formatted(new Gson().toJson(games));
+            return new Gson().toJson(games);
+
         } catch (DataAccessException e) {
             if (e.getMessage().contains("Invalid authentication token") ||
                     e.getMessage().contains("Token not found")) {
