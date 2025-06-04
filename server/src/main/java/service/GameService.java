@@ -46,29 +46,29 @@ public class GameService {
     }
 
     public int joinGame(String authToken, int gameID, String color) throws UnauthorizedUserException, DataAccessException, BadRequestException {
-//        if (color == null){
-//            return 1;
-//        }
+        if (color == null){
+            return 1;
+        }
 
-//        if (!color.isEmpty() &&
-//                !color.equalsIgnoreCase("WHITE") &&
-//                !color.equalsIgnoreCase("BLACK")) {
-//            //throw new BadRequestException("Invalid team color");
-//            return 1;
-//        }
+        if (!color.isEmpty() &&
+                !color.equalsIgnoreCase("WHITE") &&
+                !color.equalsIgnoreCase("BLACK")) {
+            //throw new BadRequestException("Invalid team color");
+            return 1;
+        }
         AuthData authData = authDAO.getAuth(authToken);
         if (!gameDAO.checkGameExists(gameID)) {
             return 1;
         }
         if (color == null) {
-            return 0; // Success for observers
+            return 0; // Success for observers: TODO: REWORK LATER
         }
-//        if (color.isEmpty()) {
-//            return 1;
-//        }
-//        if (!color.equalsIgnoreCase("WHITE") && !color.equalsIgnoreCase("BLACK")) {
-//            return 1;
-//        }
+        if (color.isEmpty()) {
+            return 1;
+        }
+        if (!color.equalsIgnoreCase("WHITE") && !color.equalsIgnoreCase("BLACK")) {
+            return 1;
+        }
 
         GameData gameData = gameDAO.getGame(gameID);
         String whiteUser = gameData.whiteUsername();
