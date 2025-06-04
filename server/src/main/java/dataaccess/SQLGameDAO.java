@@ -42,7 +42,14 @@ public class SQLGameDAO implements GameDAO {
                         var whiteUsername = results.getString("whiteUsername");
                         var blackUsername = results.getString("blackUsername");
                         var gameName = results.getString("gameName");
-                        var chessGame = deserializeGame(results.getString("chessGame"));
+                        String rawGameJSON = results.getString("chessGame");
+
+                        //System.out.println("Debug raw game data: "+ rawGameJSON);
+
+                        var chessGame = deserializeGame(rawGameJSON);
+
+                        //System.out.println("Chess Game Null: " + (chessGame == null));
+
                         games.add(new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame));
                     }
                 }

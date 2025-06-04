@@ -5,6 +5,7 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
+import static java.lang.System.mapLibraryName;
 import static java.lang.System.out;
 import static ui.EscapeSequences.*;
 import static ui.EscapeSequences.SET_TEXT_COLOR_BLACK;
@@ -12,30 +13,27 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_BLACK;
 public class BoardToString {
 
     ChessBoard board;
+    ChessGame.TeamColor playerColor;
 
-    BoardToString(ChessBoard board) {
+    BoardToString(ChessBoard board, ChessGame.TeamColor playerColor) {
         this.board = board;
+        this.playerColor = playerColor;
     }
 
     void printBoard() {
         StringBuilder output = new StringBuilder();
         output.append(SET_TEXT_BOLD);
 
-        boolean reversed = true;
-        for (int j = 0; j < 2; j++) {
+        boolean reversed = (playerColor == ChessGame.TeamColor.BLACK);
 
-            output.append(startingRow(reversed));
+        output.append(startingRow(reversed));
 
-            for (int i = 8; i > 0; i--) {
-                int row = !reversed ? i : (i * -1) + 9;
-                output.append(boardRow(row, reversed));
-            }
-
-            output.append(startingRow(reversed));
-            if (j < 1) output.append("\n");
-
-            reversed = false;
+        for (int i = 8; i > 0; i--) {
+            int row = !reversed ? i : (i * -1) + 9;
+            output.append(boardRow(row, reversed));
         }
+
+        output.append(startingRow(reversed));
         output.append(RESET_TEXT_BOLD_FAINT);
         out.println(output);
     }
