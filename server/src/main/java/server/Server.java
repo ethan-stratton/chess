@@ -67,11 +67,17 @@ public class Server {
     }
 
 
+    public void clearDB() {
+        userAuthService.clear();
+        gameService.clear();
+    }
+
     private Object clear(Request req, Response resp) {
 
         try {
-            userAuthService.clear();
-            gameService.clear();
+//            userAuthService.clear();
+//            gameService.clear();
+            clearDB();
             resp.status(200);
             return "{}";
         }

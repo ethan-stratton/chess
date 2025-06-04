@@ -147,7 +147,7 @@ public class SQLGameDAO implements GameDAO {
     @Override
     public void clear() {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("TRUNCATE game")) {
+            try (var statement = conn.prepareStatement("TRUNCATE TABLE game")) {
                 statement.executeUpdate();
             } catch (SQLException e) {
                 throw new RuntimeException(e);

@@ -15,6 +15,7 @@ public class ServerFacade {
     private String authToken;
     private final Gson gson = new Gson();
 
+
     public boolean register(String username, String password, String email) {
         var body = Map.of("username", username, "password", password, "email", email);
         Map<String, Object> resp = request("POST", "/user", gson.toJson(body));
@@ -23,6 +24,10 @@ public class ServerFacade {
         }
         authToken = (String) resp.get("authToken");
         return true;
+    }
+
+    public void setServerPort(int port) {
+        this.baseURL = "http://localhost:" + port;
     }
 
     public boolean logout() {
@@ -48,6 +53,9 @@ public class ServerFacade {
         var body = Map.of("gameName", gameName);
         Map<String, Object> resp = request("POST", "/game", gson.toJson(body));
         //return !resp.containsKey("Error");
+        if (resp.containsKey("Error")) {
+            return -1;
+        }
         double gameID = (double) resp.get("gameID");
         return (int) gameID;
     }
