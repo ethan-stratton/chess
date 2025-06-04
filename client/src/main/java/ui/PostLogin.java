@@ -56,7 +56,7 @@ public class PostLogin {
                         break;
                     }
                     int gameID = server.createGame(input[1]);
-                    out.printf("Created game, ID: %d%n", gameID);
+                    //out.printf("Created game, ID: %d%n", gameID);
                     break;
                 case "join":
                     if (input.length != 3) {
@@ -74,14 +74,17 @@ public class PostLogin {
                             //find user color
                             ChessGame.TeamColor color = input[2].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
                             //according to user color, print correct board
-
                             new BoardToString(game.game().getBoard(), color).printBoard();
-                            //
                         } else {
-                            out.println("Failed to join game");
+                            out.println("Incorrect Usage: join <LIST_ID> [WHITE|BLACK]");
+                            //out.println("Failed to join game");
                         }
+                        //different catch blocks (list out of bounds error)
+                    } catch (IndexOutOfBoundsException e){
+                        out.println("List ID out of Bounds");
                     } catch (Exception e) {
-                        out.println("Incorrect Usage: " + e.getMessage());
+                        out.println("Incorrect Usage: join <LIST_ID> [WHITE|BLACK]");
+                        //out.println("Incorrect Usage: " + e.getMessage());
                     }
                     break;
                 case "observe":
@@ -131,8 +134,8 @@ public class PostLogin {
     private void printGames() {
         out.println("ID  Game Name          White User       Black User");
         out.println("----------------------------------------------------------");
-        for (int i = 0; i < games.size(); i++) {
-            GameData game = games.get(i);
+        for (int i = 1; i <= games.size(); i++) {
+            GameData game = games.get(i-1);
             String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "open";
             String blackUser = game.blackUsername() != null ? game.blackUsername() : "open";
             out.printf("%-3d %-18s %-16s %-16s%n",
@@ -142,8 +145,6 @@ public class PostLogin {
                     blackUser);
         }
     }
-
-
 
     private void printHelpMenu() {
         out.println(" --- Help Menu --- ");

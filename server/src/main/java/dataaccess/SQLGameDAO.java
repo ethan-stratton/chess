@@ -11,7 +11,6 @@ import java.util.HashSet;
 public class SQLGameDAO implements GameDAO {
 
 
-
     public SQLGameDAO() {
         try (var conn = DatabaseManager.getConnection()) {
             conn.setCatalog(DatabaseManager.getDatabaseName());
