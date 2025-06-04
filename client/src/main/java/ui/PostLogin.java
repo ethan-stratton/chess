@@ -3,8 +3,14 @@ package ui;
 import java.util.*;
 
 import model.GameData;
+import chess.ChessBoard;
+import chess.ChessGame;
+
+import ui.EscapeSequences.*; //
+import static ui.EscapeSequences.*;
 
 import static java.lang.System.out;
+
 
 public class PostLogin {
 
@@ -19,6 +25,7 @@ public class PostLogin {
 
     public void run() {
         boolean loggedIn = true;
+        out.print(RESET_TEXT_COLOR + RESET_BG_COLOR);
 
         while (loggedIn) {
             String[] input = getUserInput();
@@ -33,6 +40,7 @@ public class PostLogin {
                     printHelpMenu();
                     break;
                 case "logout":
+                    server.logout();
                     loggedIn = false;
                     break;
                 case "list":
@@ -52,16 +60,41 @@ public class PostLogin {
                     break;
                 case "join":
                     if (input.length != 3) {
-                        out.println("Please provide a game ID and color choice");
-                        printJoin();
+                        out.println("Usage: join <LIST_ID> [WHITE|BLACK]");
+                        out.println("Note: Use the LIST_ID (first column) not the gameID");
                         break;
                     }
-                    if (server.joinGame(games.get(Integer.parseInt(input[1])).gameID(), input[2].toUpperCase())) {
-                        out.println("You have joined the game");
+                    try {
+                        int listIndex = Integer.parseInt(input[1]);
+                        GameData game = games.get(listIndex);
+                        if (server.joinGame(game.gameID(), input[2].toUpperCase())) {
+                            out.println("Successfully joined game " + game.gameID());
+                        } else {
+                            out.println("Failed to join game");
+                        }
+                    } catch (Exception e) {
+                        out.println("Invalid input: " + e.getMessage());
+                    }
+                    break;
+                case "observe":
+                    if (input.length != 2) {
+                        out.println("Please provide a game ID");
+                        printObserve();
+                        break;
+                    }
+                    int listIndex = Integer.parseInt(input[1]);
+                    if (listIndex < 0 || listIndex >= games.size()) {
+                        out.println("Invalid game index. Use the ID from the 'list' command.");
+                        break;
+                    }
+                    GameData observeGame = games.get(Integer.parseInt(input[1]));
+                    if (server.joinGame(observeGame.gameID(), null)) {
+                        out.println("You are now observing game "+ observeGame.gameName());
+                        new BoardToString(observeGame.game().getBoard()).printBoard();
                         break;
                     } else {
-                        out.println("Game does not exist or color taken");
-                        printJoin();
+                        out.println("Game does not exist");
+                        printObserve();
                         break;
                     }
                 default:
@@ -88,18 +121,28 @@ public class PostLogin {
     }
 
     private void printGames() {
+        out.println("ID  GameID  Game Name          White User       Black User");
+        out.println("----------------------------------------------------------");
         for (int i = 0; i < games.size(); i++) {
             GameData game = games.get(i);
             String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "open";
             String blackUser = game.blackUsername() != null ? game.blackUsername() : "open";
-            out.printf("%d -- Game Name: %s  |  White User: %s  |  Black User: %s %n", i, game.gameName(), whiteUser, blackUser);
+            out.printf("%-3d %-7d %-18s %-16s %-16s%n",
+                    i,
+                    game.gameID(),
+                    game.gameName(),
+                    whiteUser,
+                    blackUser);
         }
     }
 
+
+
     private void printHelpMenu() {
         out.println(" --- Help Menu --- ");
+        out.println("Note: Use LIST_ID (from 'list' command) when joining games");
         printCreate();
-        out.println("list - list all games");
+        out.println("list - list all games with IDs");
         printJoin();
         printObserve();
         out.println("logout - log out of current user");

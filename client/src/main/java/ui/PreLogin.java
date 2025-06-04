@@ -3,6 +3,7 @@ package ui;
 import java.util.Scanner;
 
 import static java.lang.System.out;
+import static ui.EscapeSequences.*;
 
 public class PreLogin {
 
@@ -16,6 +17,7 @@ public class PreLogin {
 
     public void run() {
         boolean loggedIn = false;
+        out.print(RESET_TEXT_COLOR + RESET_BG_COLOR);
         out.println("Welcome to Chess! Enter 'help' to get started.");
         while (!loggedIn) {
             String[] input = getUserInput();

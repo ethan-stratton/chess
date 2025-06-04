@@ -25,6 +25,15 @@ public class ServerFacade {
         return true;
     }
 
+    public boolean logout() {
+        Map resp = request("DELETE", "/session");
+        if (resp.containsKey("Error")) {
+            return false;
+        }
+        authToken = null;
+        return true;
+    }
+
     public boolean login(String username, String password) {
         var body = Map.of("username", username, "password", password);
         Map<String, Object> resp = request("POST", "/session", gson.toJson(body));
@@ -57,9 +66,21 @@ public class ServerFacade {
 
 
     public boolean joinGame(int gameId, String playerColor) {
-        var body = Map.of("gameID", gameId, "playerColor", playerColor);
-        Map<String, Object> resp = request("PUT", "/game", gson.toJson(body));
+        //var body = Map.of("gameID", gameId, "playerColor", playerColor);
+        Map body;
+        if (playerColor != null) {
+            body = Map.of("gameID", gameId, "playerColor", playerColor);
+        } else {
+            body = Map.of("gameID", gameId);
+        }
+        String jsonBody = gson.toJson(body);
+        System.out.println("Sending join request: " + jsonBody); // Debug log
+        Map<String, Object> resp = request("PUT", "/game", jsonBody);
+        System.out.println("Received response: " + resp); // Debug log
         return !resp.containsKey("Error");
+
+        //Map<String, Object> resp = request("PUT", "/game", gson.toJson(body));
+        //return !resp.containsKey("Error");
     }
 
     public Map<String, Object> request(String method, String endpoint) {

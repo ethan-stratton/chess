@@ -74,10 +74,10 @@ public class GameHandler {
 
     public Object joinGame(Request req, Response resp) {
         try {
-            if (!req.body().contains("\"gameID\":")) {
-                resp.status(400);
-                return "{ \"message\": \"Error: Bad Request\" }";
-            }
+//            if (!req.body().contains("\"gameID\":")) {
+//                resp.status(400);
+//                return "{ \"message\": \"Error: Bad Request\" }";
+//            }
 
             String authToken = req.headers("authorization");
             record JoinGameData(String playerColor, int gameID) {}

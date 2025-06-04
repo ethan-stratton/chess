@@ -66,6 +66,7 @@ public class Server {
         Spark.awaitStop();
     }
 
+
     private Object clear(Request req, Response resp) {
 
         try {
