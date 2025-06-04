@@ -60,8 +60,6 @@ public class ServerFacade {
         return (int) gameID;
     }
 
-    //TODO make this more formatted and better looking
-
     public HashSet<GameData> listGames() {
         String resp = requestString("GET", "/game");
         if (resp.contains("Error")) {
@@ -82,9 +80,9 @@ public class ServerFacade {
             body = Map.of("gameID", gameId);
         }
         String jsonBody = gson.toJson(body);
-        System.out.println("Sending join request: " + jsonBody); // Debug log
+        //System.out.println("Sending join request: " + jsonBody); // Debug log
         Map<String, Object> resp = request("PUT", "/game", jsonBody);
-        System.out.println("Received response: " + resp); // Debug log
+        //System.out.println("Received response: " + resp); // Debug log
         return !resp.containsKey("Error");
 
         //Map<String, Object> resp = request("PUT", "/game", gson.toJson(body));

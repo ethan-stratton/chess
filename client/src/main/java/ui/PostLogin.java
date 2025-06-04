@@ -68,12 +68,12 @@ public class PostLogin {
                         int listIndex = Integer.parseInt(input[1]);
                         GameData game = games.get(listIndex);
                         if (server.joinGame(game.gameID(), input[2].toUpperCase())) {
-                            out.println("Successfully joined game " + game.gameID());
+                            out.println("Successfully joined game " + game.gameName());
                         } else {
                             out.println("Failed to join game");
                         }
                     } catch (Exception e) {
-                        out.println("Invalid input: " + e.getMessage());
+                        out.println("Incorrect Usage: " + e.getMessage());
                     }
                     break;
                 case "observe":
@@ -121,15 +121,14 @@ public class PostLogin {
     }
 
     private void printGames() {
-        out.println("ID  GameID  Game Name          White User       Black User");
+        out.println("ID  Game Name          White User       Black User");
         out.println("----------------------------------------------------------");
         for (int i = 0; i < games.size(); i++) {
             GameData game = games.get(i);
             String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "open";
             String blackUser = game.blackUsername() != null ? game.blackUsername() : "open";
-            out.printf("%-3d %-7d %-18s %-16s %-16s%n",
+            out.printf("%-3d %-18s %-16s %-16s%n",
                     i,
-                    game.gameID(),
                     game.gameName(),
                     whiteUser,
                     blackUser);
