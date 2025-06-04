@@ -171,11 +171,6 @@ public class ServerFacade {
         return resp;
     }
 
-    private Map mapOf(String string) {
-        System.out.println(string);
-        return new Gson().fromJson(string, Map.class);
-    }
-
     private String readerToString(InputStreamReader reader) {
         StringBuilder sb = new StringBuilder();
         try {

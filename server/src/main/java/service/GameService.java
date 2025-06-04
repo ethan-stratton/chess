@@ -61,7 +61,7 @@ public class GameService {
             return 1;
         }
         if (color == null) {
-            return 0; // Success for observers: TODO: REWORK LATER
+            return 0; // Success for observers, but doesn't currently work, rework later
         }
         if (color.isEmpty()) {
             return 1;
