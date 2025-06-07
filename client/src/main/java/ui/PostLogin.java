@@ -87,12 +87,12 @@ public class PostLogin {
                             out.println(SET_TEXT_COLOR_GREEN + "Successfully joined game " + RESET_TEXT_COLOR + game.gameName());
                             ChessGame.TeamColor color = input[2].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
                             //todo
-                            new BoardToString(game.game().getBoard(), color).printBoard();
+                            //new BoardToString(game.game().getBoard(), color).printBoard();
                             //instead of Board representation (delete above line), we need:
                             // the server to send a test message to make sure it works: server.sendWSMessage("Test Join");
                             inGame = true;
-                            // gameplay logic Gameplay gameplay = new Gameplay(server, joinGame.game(), color);
-                            // gameplay.run();
+                            Gameplay gameplay = new Gameplay(server, game.game(), color);
+                            gameplay.run();
                         } else {
                             if (colorInput.equals("WHITE") && game.whiteUsername() != null) {
                                 out.println(SET_TEXT_COLOR_RED + "Error: White position already taken by " + RESET_TEXT_COLOR + game.whiteUsername());
@@ -124,7 +124,8 @@ public class PostLogin {
                     if (server.joinGame(observeGame.gameID(), null)) {
                         out.println("You are now observing game "+ observeGame.gameName());
                         //todo delete below line
-                        new BoardToString(observeGame.game().getBoard(), ChessGame.TeamColor.WHITE).printBoard();
+                        //new BoardToString(observeGame.game().getBoard(), ChessGame.TeamColor.WHITE).printBoard();
+
                         // instead implement something similar to joinGame:
                         inGame = true;
                         //Gameplay gameplay = new Gameplay(server, observeGame.game(), null);

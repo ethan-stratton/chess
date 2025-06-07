@@ -18,15 +18,14 @@ public class Gameplay {
 
     public Gameplay(ServerFacade server, ChessGame game, ChessGame.TeamColor color) {
         this.server = server;
-        //this.boardRepr = new BoardToString(game);
-        // have to change BoardToString to take a game instead of just a board
+        this.boardRepr = new BoardToString(game);
         this.game = game;
         this.color = color;
     }
 
     public void run(){
         boolean inGame = true;
-        //printBoard
+        boardRepr.printBoard(color, null);
         while (inGame){
             String[] input = getUserInput();
             switch(input[0]){
@@ -34,7 +33,7 @@ public class Gameplay {
                     printHelpMenu();
                     break;
                 case "redraw":
-                    //print board
+                    boardRepr.printBoard(color, null);
                     break;
                 case "leave":
                     inGame = false;
@@ -49,6 +48,8 @@ public class Gameplay {
                     printHighlight();
                     break;
                 default:
+                    out.println("Command unrecognized");
+                    printHelpMenu();
                     break;
             }
         }
