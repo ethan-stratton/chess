@@ -45,7 +45,6 @@ public class Server {
 
         Spark.webSocket("/ws", WebsocketHandler.class);
 
-
         Spark.get("/", (req, res) -> {
             res.redirect("/index.html");
             return null;

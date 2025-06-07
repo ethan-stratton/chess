@@ -25,9 +25,10 @@ public class PostLogin {
 
     public void run() {
         boolean loggedIn = true;
+        boolean inGame = false;
         out.print(RESET_TEXT_COLOR + RESET_BG_COLOR);
 
-        while (loggedIn) {
+        while (loggedIn && !inGame) {
             String[] input = getUserInput();
             if (input[0].equals("login")) {
                 out.println("You are already logged in. Use 'logout' first.");
@@ -85,7 +86,13 @@ public class PostLogin {
                         if (server.joinGame(game.gameID(), input[2].toUpperCase())) {
                             out.println(SET_TEXT_COLOR_GREEN + "Successfully joined game " + RESET_TEXT_COLOR + game.gameName());
                             ChessGame.TeamColor color = input[2].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+                            //todo
                             new BoardToString(game.game().getBoard(), color).printBoard();
+                            //instead of Board representation (delete above line), we need:
+                            // the server to send a test message to make sure it works: server.sendWSMessage("Test Join");
+                            inGame = true;
+                            // gameplay logic Gameplay gameplay = new Gameplay(server, joinGame.game(), color);
+                            // gameplay.run();
                         } else {
                             if (colorInput.equals("WHITE") && game.whiteUsername() != null) {
                                 out.println(SET_TEXT_COLOR_RED + "Error: White position already taken by " + RESET_TEXT_COLOR + game.whiteUsername());
@@ -116,7 +123,12 @@ public class PostLogin {
                     GameData observeGame = games.get(Integer.parseInt(input[1]) - 1);
                     if (server.joinGame(observeGame.gameID(), null)) {
                         out.println("You are now observing game "+ observeGame.gameName());
+                        //todo delete below line
                         new BoardToString(observeGame.game().getBoard(), ChessGame.TeamColor.WHITE).printBoard();
+                        // instead implement something similar to joinGame:
+                        inGame = true;
+                        //Gameplay gameplay = new Gameplay(server, observeGame.game(), null);
+                        //gameplay.run();
                         break;
                     } else {
                         out.println("Game does not exist");
@@ -130,8 +142,10 @@ public class PostLogin {
             }
         }
 
-        PreLogin prelogin = new PreLogin(server);
-        prelogin.run();
+        if (!loggedIn) {
+            PreLogin prelogin = new PreLogin(server);
+            prelogin.run();
+        }
     }
 
     private String[] getUserInput() {
