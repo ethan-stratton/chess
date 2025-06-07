@@ -41,8 +41,10 @@ public class Server {
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
-
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/ws", WebsocketHandler.class);
+
 
         Spark.get("/", (req, res) -> {
             res.redirect("/index.html");
@@ -75,8 +77,6 @@ public class Server {
     private Object clear(Request req, Response resp) {
 
         try {
-//            userAuthService.clear();
-//            gameService.clear();
             clearDB();
             resp.status(200);
             return "{}";
