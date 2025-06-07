@@ -5,6 +5,5 @@ public class Main {
         ServerFacade server = new ServerFacade();
         PreLogin prelogin = new PreLogin(server);
         prelogin.run();
-        System.out.println("Exited Chess UI");
     }
 }
