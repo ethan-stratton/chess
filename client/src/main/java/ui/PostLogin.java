@@ -55,36 +55,51 @@ public class PostLogin {
                         printCreate();
                         break;
                     }
-                    int gameID = server.createGame(input[1]);
-                    //out.printf("Created game, ID: %d%n", gameID);
+                    //int gameID = server.createGame(input[1]);
+                    //out.printf("Created "+ gameName);
                     break;
                 case "join":
                     if (input.length != 3) {
-                        out.println("Usage: join <LIST_ID> [WHITE|BLACK]");
-                        out.println("Note: Use the LIST_ID (first column) not the gameID");
+                        out.println(SET_TEXT_COLOR_RED + "Error: Missing arguments" + RESET_TEXT_COLOR);
+                        out.println("Usage: join <LIST_ID> [WHITE|BLACK|<empty>]");
+                        out.println("Example: join 1 WHITE  (to join as white)");
                         break;
                     }
                     try {
                         refreshGames();
-                        int listIndex = Integer.parseInt(input[1]);
+                        int listIndex = Integer.parseInt(input[1]) - 1;
+                        if (listIndex < 0 || listIndex >= games.size()) {
+                            out.println(SET_TEXT_COLOR_RED + "Error: Invalid LIST_ID" + RESET_TEXT_COLOR);
+                            out.println("Valid LIST_IDs are between 1 and " + games.size());
+                            printGames(); // show the list again for reference
+                            break;
+                        }
                         GameData game = games.get(listIndex);
-                        if (server.joinGame(game.gameID(), input[2].toUpperCase())) {
-                            out.println("Successfully joined game " + game.gameName());
+                        String colorInput = input[2].toUpperCase();
+                        if (!colorInput.equalsIgnoreCase("WHITE") && !colorInput.equalsIgnoreCase("BLACK")) {
+                            out.println(SET_TEXT_COLOR_RED + "Error: Invalid color" + RESET_TEXT_COLOR);
+                            out.println("Please specify either WHITE or BLACK");
+                            break;
+                        }
 
-                            //find user color
+                        if (server.joinGame(game.gameID(), input[2].toUpperCase())) {
+                            out.println(SET_TEXT_COLOR_GREEN + "Successfully joined game " + RESET_TEXT_COLOR + game.gameName());
                             ChessGame.TeamColor color = input[2].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-                            //according to user color, print correct board
                             new BoardToString(game.game().getBoard(), color).printBoard();
                         } else {
-                            out.println("Incorrect Usage: join <LIST_ID> [WHITE|BLACK]");
-                            //out.println("Failed to join game");
+                            if (colorInput.equals("WHITE") && game.whiteUsername() != null) {
+                                out.println(SET_TEXT_COLOR_RED + "Error: White position already taken by " + RESET_TEXT_COLOR + game.whiteUsername());
+                            } else if (colorInput.equals("BLACK") && game.blackUsername() != null) {
+                                out.println(SET_TEXT_COLOR_RED + "Error: Black position already taken by "+ RESET_TEXT_COLOR + game.blackUsername());
+                            } else {
+                                out.println(SET_TEXT_COLOR_RED + "Error: Could not join game" + RESET_TEXT_COLOR);
+                            }
                         }
-                        //different catch blocks (list out of bounds error)
-                    } catch (IndexOutOfBoundsException e){
-                        out.println("List ID out of Bounds");
+                    } catch (NumberFormatException e){
+                        out.println(SET_TEXT_COLOR_RED + "Error: LIST_ID must be a number" + RESET_TEXT_COLOR);
+                        out.println("Example: join 1 WHITE");
                     } catch (Exception e) {
-                        out.println("Incorrect Usage: join <LIST_ID> [WHITE|BLACK]");
-                        //out.println("Incorrect Usage: " + e.getMessage());
+                        out.println(SET_TEXT_COLOR_RED +"Something Went Wrong: "+ RESET_TEXT_COLOR + e.getMessage());
                     }
                     break;
                 case "observe":
@@ -98,7 +113,7 @@ public class PostLogin {
                         out.println("Invalid game index. Use the ID from the 'list' command.");
                         break;
                     }
-                    GameData observeGame = games.get(Integer.parseInt(input[1]));
+                    GameData observeGame = games.get(Integer.parseInt(input[1]) - 1);
                     if (server.joinGame(observeGame.gameID(), null)) {
                         out.println("You are now observing game "+ observeGame.gameName());
                         new BoardToString(observeGame.game().getBoard(), ChessGame.TeamColor.WHITE).printBoard();
