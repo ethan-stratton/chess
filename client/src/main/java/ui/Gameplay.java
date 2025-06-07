@@ -8,6 +8,8 @@ import model.GameData;
 import java.util.Scanner;
 
 import static java.lang.System.out;
+import static ui.EscapeSequences.RESET_BG_COLOR;
+import static ui.EscapeSequences.RESET_TEXT_COLOR;
 
 public class Gameplay {
 
@@ -25,6 +27,7 @@ public class Gameplay {
 
     public void run(){
         boolean inGame = true;
+        out.print(RESET_TEXT_COLOR + RESET_BG_COLOR);
         boardRepr.printBoard(color, null);
         while (inGame){
             String[] input = getUserInput();
@@ -38,13 +41,13 @@ public class Gameplay {
                 case "leave":
                     inGame = false;
                     break;
-                case "move":
+                case "move": //todo
                     printMakeMove();
                     break;
-                case "resign":
+                case "resign": //todo
                     resignation();
                     break;
-                case "highlight":
+                case "highlight": //todo
                     printHighlight();
                     break;
                 default:
