@@ -81,17 +81,12 @@ public class PostLogin {
                             out.println("Please specify either WHITE or BLACK");
                             break;
                         }
-
                         if (server.joinGame(game.gameID(), input[2].toUpperCase())) {
                             out.println(SET_TEXT_COLOR_GREEN + "Successfully joined game " + RESET_TEXT_COLOR + game.gameName());
                             ChessGame.TeamColor color = input[2].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
                             //todo
-                            //new BoardToString(game.game().getBoard(), color).printBoard();
-                            //instead of Board representation (delete above line), we need:
-                            // the server to send a test message to make sure it works:
-                            server.sendWSMessage("Test Join");
                             inGame = true;
-                            Gameplay gameplay = new Gameplay(server, game.game(), color);
+                            Gameplay gameplay = new Gameplay(server, game, color);
                             gameplay.run();
                         } else {
                             if (colorInput.equals("WHITE") && game.whiteUsername() != null) {
@@ -128,7 +123,7 @@ public class PostLogin {
 
                         // instead implement something similar to joinGame:
                         inGame = true;
-                        Gameplay gameplay = new Gameplay(server, observeGame.game(), null);
+                        Gameplay gameplay = new Gameplay(server, observeGame, null);
                         gameplay.run();
                         break;
                     } else {

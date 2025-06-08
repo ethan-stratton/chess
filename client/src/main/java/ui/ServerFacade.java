@@ -60,11 +60,13 @@ public class ServerFacade {
 
     public void closeWS() {
         try {
-            ws.session.close();
+            if (ws != null && ws.session != null && ws.session.isOpen()) {
+                ws.session.close();
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to close WebSocket: " + e.getMessage());
+        } finally {
             ws = null;
-        }
-        catch (IOException e) {
-            System.out.println("Failed to close connection with server");
         }
     }
 
@@ -88,6 +90,13 @@ public class ServerFacade {
     }
 
     public void leave(int gameID) {
+        //sendCommand(new LeaveGame(authToken, gameID));
+        if (ws != null && ws.session != null && ws.session.isOpen()) {
+            sendCommand(new LeaveGame(authToken, gameID));
+            closeWS();
+        } else {
+            System.out.println("Not connected to WebSocket");
+        }
     }
 
     public void resign(int gameID) {
@@ -111,6 +120,27 @@ public class ServerFacade {
     }
 
     public boolean joinGame(int gameId, String playerColor) {
-        return http.joinGame(gameId, playerColor);
+        //return http.joinGame(gameId, playerColor);
+        boolean success = http.joinGame(gameId, playerColor);
+        if (success) {
+            initializeWebSocket(gameId);
+        }
+        return success;
+    }
+
+    private void initializeWebSocket(int gameID) {
+        try {
+            if (ws == null || !ws.session.isOpen()) {
+                ws = new WebsocketCommunicator(serverDomain);
+                // send CONNECT command after establishing connection
+                sendCommand(new UserGameCommand(
+                        UserGameCommand.CommandType.CONNECT,
+                        authToken,
+                        gameID
+                ));
+            }
+        } catch (Exception e) {
+            System.out.println("Failed to initialize WebSocket: " + e.getMessage());
+        }
     }
 }

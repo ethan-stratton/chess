@@ -16,12 +16,15 @@ public class Gameplay {
     ServerFacade server;
     BoardToString boardRepr;
     ChessGame game;
+    int gameID;
     ChessGame.TeamColor color;
 
-    public Gameplay(ServerFacade server, ChessGame game, ChessGame.TeamColor color) {
+    public Gameplay(ServerFacade server, GameData gameData, ChessGame.TeamColor color) {
         this.server = server;
+        this.game = gameData.game();
         this.boardRepr = new BoardToString(game);
-        this.game = game;
+        //this.game = game;
+        this.gameID = gameData.gameID();
         this.color = color;
     }
 
@@ -40,6 +43,7 @@ public class Gameplay {
                     break;
                 case "leave":
                     inGame = false;
+                    server.leave(gameID);
                     break;
                 case "move":// todo
                     if (input.length == 3 && input[1].matches("[a-h][1-8]") && input[2].matches("[a-h][1-8]")) {

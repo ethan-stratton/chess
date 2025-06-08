@@ -77,6 +77,14 @@ public class UserAuthService {
             throw new DataAccessException("Database operation failed: " + e.getMessage());
         }
     }
+    public AuthData getAuth(String authToken) throws UnauthorizedUserException {
+        try {
+            return authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new UnauthorizedUserException("Unauthorized User");
+        }
+    }
+
 
     public void clear() {
         authDAO.clear();
