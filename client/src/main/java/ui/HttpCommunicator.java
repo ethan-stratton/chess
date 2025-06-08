@@ -20,8 +20,11 @@ public class HttpCommunicator {
     private String authToken;
     private final Gson gson = new Gson();
 
-    public HttpCommunicator(String url) {
-        baseURL = url;
+    ServerFacade facade;
+
+    public HttpCommunicator(ServerFacade facade, String serverDomain) {
+        baseURL = "http://" + serverDomain;
+        this.facade = facade;
     }
 
     public boolean register(String username, String password, String email) {
@@ -30,7 +33,8 @@ public class HttpCommunicator {
         if (resp.containsKey("Error")) {
             return false;
         }
-        authToken = (String) resp.get("authToken");
+        //authToken = (String) resp.get("authToken");
+        facade.setAuth((String) resp.get("authToken"));
         return true;
     }
 
@@ -43,7 +47,8 @@ public class HttpCommunicator {
         if (resp.containsKey("Error")) {
             return false;
         }
-        authToken = null;
+        //authToken = null;
+        facade.setAuth(null);
         return true;
     }
 
@@ -53,7 +58,8 @@ public class HttpCommunicator {
         if (resp.containsKey("Error")) {
             return false;
         }
-        authToken = (String) resp.get("authToken");
+        //authToken = (String) resp.get("authToken");
+        facade.setAuth((String) resp.get("authToken"));
         return true;
     }
 
@@ -98,8 +104,8 @@ public class HttpCommunicator {
             URI uri = new URI(baseURL + endpoint);
             HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
             http.setRequestMethod(method);
-            if (authToken != null) {
-                http.addRequestProperty("authorization", authToken);
+            if (facade.getAuth() != null) {
+                http.addRequestProperty("authorization", facade.getAuth());
             }
             if (body != null && !body.isEmpty()) {
                 http.setDoOutput(true);
@@ -131,8 +137,8 @@ public class HttpCommunicator {
             URI uri = new URI(baseURL + endpoint);
             HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
             http.setRequestMethod(method);
-            if (authToken != null) {
-                http.addRequestProperty("authorization", authToken);
+            if (facade.getAuth() != null) {
+                http.addRequestProperty("authorization", facade.getAuth());
             }
             if (!Objects.equals(body, null)) {
                 http.setDoOutput(true);

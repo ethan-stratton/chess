@@ -37,19 +37,19 @@ import java.net.URISyntaxException;
         }
 
         //debug script
-        public static void main(String[] args) {
-            try {
-                WebsocketCommunicator client = new WebsocketCommunicator("localhost:8080");
-
-                client.sendMessage("Hello Server!\n");
-                client.sendMessage("Another test message");
-
-                // keep connection open briefly to get the response
-                Thread.sleep(5000);
-
-                client.session.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+//        public static void main(String[] args) {
+//            try {
+//                WebsocketCommunicator client = new WebsocketCommunicator("localhost:8080");
+//
+//                client.sendMessage("Hello Server!\n");
+//                client.sendMessage("Another test message");
+//
+//                // keep connection open briefly to get the response
+//                Thread.sleep(5000);
+//
+//                client.session.close();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
     }

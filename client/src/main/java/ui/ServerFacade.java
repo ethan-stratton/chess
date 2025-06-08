@@ -9,13 +9,26 @@ public class ServerFacade {
     HttpCommunicator http;
     String baseURL;
 
-    public ServerFacade() {
-        this("http://localhost:8080");
+    WebsocketCommunicator ws;
+    String serverDomain;
+    String authToken;
+
+    public ServerFacade() throws Exception {
+        this("localhost:8080");
     }
 
-    public ServerFacade(String url) {
-        baseURL = url;
-        http = new HttpCommunicator(baseURL);
+    public ServerFacade(String serverDomain) throws Exception {
+        this.serverDomain= serverDomain;
+        http = new HttpCommunicator(this, serverDomain);
+        ws = new WebsocketCommunicator(serverDomain);
+    }
+
+    protected String getAuth(){
+        return authToken;
+    }
+
+    protected void setAuth(String authToken){
+        this.authToken = authToken;
     }
 
     public boolean register(String username, String password, String email) {
@@ -24,6 +37,10 @@ public class ServerFacade {
 
     public void setServerPort(int port) {
         this.baseURL = "http://localhost:" + port;
+    }
+
+    public void sendWSMessage(String message) {
+        ws.sendMessage(message);
     }
 
     public boolean logout() {
