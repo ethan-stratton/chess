@@ -12,16 +12,12 @@ import java.net.URISyntaxException;
         public WebsocketCommunicator(String serverDomain) throws Exception {
             try {
                 URI uri = new URI("ws://" + serverDomain + "/ws");
-
                 WebSocketContainer container = ContainerProvider.getWebSocketContainer();
                 this.session = container.connectToServer(this, uri);
-
                 this.session.addMessageHandler((MessageHandler.Whole<String>) this::handleMessage);
-
             } catch (DeploymentException | IOException | URISyntaxException ex) {
                 throw new Exception();
             }
-
         }
 
         @Override

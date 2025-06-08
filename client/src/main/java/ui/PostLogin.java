@@ -36,6 +36,7 @@ public class PostLogin {
             }
             switch (input[0]) {
                 case "quit":
+                    //todo stop the server
                     return;
                 case "help":
                     printHelpMenu();
@@ -45,8 +46,6 @@ public class PostLogin {
                     loggedIn = false;
                     break;
                 case "list":
-                    //out.println(server.listGames());
-                    //server.printGamesFormatted();
                     refreshGames();
                     printGames();
                     break;
@@ -72,7 +71,7 @@ public class PostLogin {
                         if (listIndex < 0 || listIndex >= games.size()) {
                             out.println(SET_TEXT_COLOR_RED + "Error: Invalid LIST_ID" + RESET_TEXT_COLOR);
                             out.println("Valid LIST_IDs are between 1 and " + games.size());
-                            printGames(); // show the list again for reference
+                            printGames();
                             break;
                         }
                         GameData game = games.get(listIndex);
@@ -89,7 +88,8 @@ public class PostLogin {
                             //todo
                             //new BoardToString(game.game().getBoard(), color).printBoard();
                             //instead of Board representation (delete above line), we need:
-                            // the server to send a test message to make sure it works: server.sendWSMessage("Test Join");
+                            // the server to send a test message to make sure it works:
+                            server.sendWSMessage("Test Join");
                             inGame = true;
                             Gameplay gameplay = new Gameplay(server, game.game(), color);
                             gameplay.run();
@@ -128,8 +128,8 @@ public class PostLogin {
 
                         // instead implement something similar to joinGame:
                         inGame = true;
-                        //Gameplay gameplay = new Gameplay(server, observeGame.game(), null);
-                        //gameplay.run();
+                        Gameplay gameplay = new Gameplay(server, observeGame.game(), null);
+                        gameplay.run();
                         break;
                     } else {
                         out.println("Game does not exist");

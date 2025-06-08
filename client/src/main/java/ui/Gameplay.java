@@ -41,14 +41,31 @@ public class Gameplay {
                 case "leave":
                     inGame = false;
                     break;
-                case "move": //todo
-                    printMakeMove();
+                case "move":// todo
+                    if (input.length == 3 && input[1].matches("[a-h][1-8]") && input[2].matches("[a-h][1-8]")) {
+                        // make new chessPosition "from" and "to" based on user input
+                        ChessPosition from = new ChessPosition(input[1].charAt(1) - '0', input[1].charAt(0) - ('a'-1));
+                        ChessPosition to = new ChessPosition(input[2].charAt(1) - '0',input[2].charAt(0) - ('a'-1));
+                        makeMove(from, to);
+                        break;
+                    }
+                    else {
+                        out.println("Please provide a <to> and <from> coordinate (ex: 'a1 b2')");
+                        printMakeMove();
+                    }
                     break;
                 case "resign": //todo
                     resignation();
                     break;
-                case "highlight": //todo
-                    printHighlight();
+                case "highlight":
+                    if (input.length == 2 && input[1].matches("[a-h][1-8]")) {
+                        ChessPosition position = new ChessPosition(input[1].charAt(1) - '0', input[1].charAt(0) - ('a'-1));
+                        boardRepr.printBoard(color, position);
+                    }
+                    else {
+                        out.println("Please provide a coordinate (ex: 'a1')");
+                        printHighlight();
+                    }
                     break;
                 default:
                     out.println("Command unrecognized");

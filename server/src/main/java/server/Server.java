@@ -67,7 +67,6 @@ public class Server {
         Spark.awaitStop();
     }
 
-
     public void clearDB() {
         userAuthService.clear();
         gameService.clear();
