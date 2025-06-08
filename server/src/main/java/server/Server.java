@@ -2,12 +2,14 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
+import org.eclipse.jetty.websocket.api.Session;
 import service.GameService;
 import service.UserAuthService;
 import server.handlers.*;
 import spark.*;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
 
@@ -15,11 +17,13 @@ public class Server {
     AuthDAO authDAO;
     GameDAO gameDAO;
 
-    UserAuthService userAuthService;
-    GameService gameService;
+    static UserAuthService userAuthService;
+    static GameService gameService;
 
     UserAuthHandler userAuthHandler;
     GameHandler gameHandler;
+
+    static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
 
     public Server() {
 

@@ -77,20 +77,20 @@ public class ServerFacade {
         ws.sendMessage(message);
     }
 
-    //need joinPlayer, joinObserver, makeChessMove, leaveGame, and resignation commands implemented
-    public void joinPlayer() {
+    public void joinPlayer(int gameID, ChessGame.TeamColor color) {
+        //sendCommand
     }
 
-    public void joinObserver() {
+    public void joinObserver(int gameID) {
     }
 
-    public void makeMove() {
+    public void makeMove(int gameID, ChessMove move) {
     }
 
-    public void leave() {
+    public void leave(int gameID) {
     }
 
-    public void resign() {
+    public void resign(int gameID) {
     }
 
 

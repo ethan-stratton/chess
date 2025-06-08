@@ -1,4 +1,5 @@
 package websocket.commands;
 
-public class Resignation {
+public class Resignation  {
+
 }
