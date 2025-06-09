@@ -48,11 +48,15 @@ public class WebsocketHandler {
             case JOIN_PLAYER:
                 Server.gameSessions.replace(session, command.getGameID());
                 handleJoinPlayer(session, (JoinPlayer) command);
+                break;
+            case JOIN_OBSERVER:
+                Server.gameSessions.replace(session, command.getGameID());
+                handleJoinObserver(session, (JoinObserver) command);
+                break;
         }
     }
 
     private void handleJoinPlayer(Session session, JoinPlayer command) throws IOException {
-
         try {
             AuthData auth = Server.userAuthService.getAuth(command.getAuthToken());
             Notification notif = new Notification("%s has joined the game as %s".formatted(auth.username(), command.getColorString()));
@@ -61,7 +65,17 @@ public class WebsocketHandler {
         catch (UnauthorizedUserException e) {
             sendError(session, new Error("Error: Not authorized"));
         }
+    }
 
+    private void handleJoinObserver(Session session, JoinObserver command) throws IOException {
+        try {
+            AuthData auth = Server.userAuthService.getAuth(command.getAuthToken());
+            Notification notif = new Notification("%s has joined the game as an observer".formatted(auth.username()));
+            broadcastMessage(session, notif);
+        }
+        catch (UnauthorizedUserException e) {
+            sendError(session, new Error("Error: Not authorized"));
+        }
     }
 
     private void handleLeave(Session session, LeaveGame command) throws IOException {

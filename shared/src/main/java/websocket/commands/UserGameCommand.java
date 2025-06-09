@@ -27,7 +27,8 @@ public class UserGameCommand {
         MAKE_MOVE,
         LEAVE,
         RESIGN,
-        JOIN_PLAYER
+        JOIN_PLAYER,
+        JOIN_OBSERVER,
     }
 
     public CommandType getCommandType() {

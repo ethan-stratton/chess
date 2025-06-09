@@ -23,7 +23,6 @@ public class Gameplay {
         this.server = server;
         this.game = gameData.game();
         this.boardRepr = new BoardToString(game);
-        //this.game = game;
         this.gameID = gameData.gameID();
         this.color = color;
     }

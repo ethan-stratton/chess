@@ -113,27 +113,26 @@ public class PostLogin {
                         printObserve();
                         break;
                     }
-                    int listIndex = Integer.parseInt(input[1]);
-                    if (listIndex < 0 || listIndex >= games.size()) {
-                        out.println("Invalid game index. Use the ID from the 'list' command.");
-                        break;
-                    }
-                    GameData observeGame = games.get(Integer.parseInt(input[1]) - 1);
-                    if (server.joinGame(observeGame.gameID(), null)) {
+                    try {
+                        int listIndex = Integer.parseInt(input[1]) - 1;
+                        if (listIndex < 0 || listIndex >= games.size()) {
+                            out.println("Invalid game index. Use the ID from the 'list' command.");
+                            break;
+                        }
+                        GameData observeGame = games.get(listIndex);
+                        server.connectWS();
+                        server.joinObserver(observeGame.gameID());
                         out.println("You are now observing game "+ observeGame.gameName());
-                        //todo delete below line
-                        //new BoardToString(observeGame.game().getBoard(), ChessGame.TeamColor.WHITE).printBoard();
-
-                        // instead implement something similar to joinGame:
                         inGame = true;
                         Gameplay gameplay = new Gameplay(server, observeGame, null);
                         gameplay.run();
-                        break;
-                    } else {
-                        out.println("Game does not exist");
+                    } catch (NumberFormatException e) {
+                        out.println("Error: Game ID must be a number");
                         printObserve();
-                        break;
+                    } catch (Exception e) {
+                        out.println("Observation failed: " + e.getMessage());
                     }
+                    break;
                 default:
                     out.println("Command not recognized, please try again:");
                     printHelpMenu();

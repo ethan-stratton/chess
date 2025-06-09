@@ -86,6 +86,8 @@ public class ServerFacade {
     }
 
     public void joinObserver(int gameID) {
+        initializeWebSocket(gameID);
+        sendCommand(new JoinObserver(authToken, gameID));
     }
 
     public void makeMove(int gameID, ChessMove move) {

@@ -28,19 +28,17 @@ public class BoardToString {
                 possibleSquares.add(move.getEndPosition());
             }
         }
-        boolean reversed = color == ChessGame.TeamColor.BLACK;
-        int printCount = color == null ? 2 : 1;
-        for (int j = 0; j < printCount; j++) {
-            output.append(startingRow(reversed));
 
-            for (int i = BOARD_SIZE; i > 0; i--) {
-                int row = !reversed ? i : (i * -1) + 9;
-                output.append(boardRow(row, reversed, position, possibleSquares));
-            }
-            output.append(startingRow(reversed));
-            if (j < printCount - 1) output.append("\n");
-            reversed = !reversed;
+        boolean reversed = color == ChessGame.TeamColor.BLACK;
+
+        output.append(startingRow(reversed));
+
+        for (int i = BOARD_SIZE; i > 0; i--) {
+            int row = !reversed ? i : (i * -1) + 9;
+            output.append(boardRow(row, reversed, position, possibleSquares));
         }
+
+        output.append(startingRow(reversed));
         output.append(RESET_TEXT_BOLD_FAINT);
         System.out.println(output);
     }
