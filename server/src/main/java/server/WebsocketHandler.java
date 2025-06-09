@@ -113,17 +113,17 @@ public class WebsocketHandler {
         try {
             AuthData auth = Server.userAuthService.getAuth(command.getAuthToken());
             GameData game = Server.gameService.getGameData(command.getAuthToken(), command.getGameID());
-            ChessGame.TeamColor userColor = getTeamColor(auth.username(), game);
 
-            String opponentUsername = userColor == ChessGame.TeamColor.WHITE ? game.blackUsername() : game.whiteUsername();
+            String winner = game.whiteUsername().equals(auth.username()) ?
+                    game.blackUsername() : game.whiteUsername();
 
-            if (userColor == null) {
-                sendError(session, new Error("Error: You are observing this game"));
-                return;
-            }
-
-            Notification notif = new Notification("%s has forfeited, %s wins!".formatted(auth.username(), opponentUsername));
+            Notification notif = new Notification(String.format(
+                    "%s has resigned. %s wins!",
+                    auth.username(),
+                    winner
+            ));
             broadcastMessage(session, notif, true);
+
         } catch (UnauthorizedUserException e) {
             sendError(session, new Error("Error: Not authorized"));
         } catch (BadRequestException e) {

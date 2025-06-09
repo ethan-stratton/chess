@@ -43,30 +43,28 @@ public class WebsocketCommunicator extends Endpoint {
         public void onOpen(Session session, EndpointConfig config) {
         }
 
-        //todo add notification and error message methods
         public void handleMessage(String message) {
-            System.out.println(message);
-            if (message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
+            if (message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
+                LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
+                printMoveMade(loadGame.getGame());
+            }
+            else if (message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
                 Notification notif = new Gson().fromJson(message, Notification.class);
                 printNotification(notif.getMessage());
             }
-        else if (message.contains("\"serverMessageType\":\"ERROR\"")) {
+            else if (message.contains("\"serverMessageType\":\"ERROR\"")) {
                 Error error = new Gson().fromJson(message, Error.class);
                 printNotification(error.getMessage());
-            }
-            else if (message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
-                LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
-                printMoveMade(loadGame.getGame());
             }
         }
 
         private void printNotification(String message) {
             System.out.print(ERASE_LINE + '\r');
-            System.out.printf("\n%s\n[IN-GAME] >>> ", message);
+            System.out.println(message);
         }
 
         private void printMoveMade(ChessGame game) {
-            System.out.print(ERASE_LINE + "\r\n");
+            System.out.print(ERASE_LINE + "\r");
             Gameplay.boardRepr.updateGame(game);
             Gameplay.boardRepr.printBoard(Gameplay.color, null);
             System.out.print("[IN-GAME] >>> ");

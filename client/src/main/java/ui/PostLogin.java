@@ -83,7 +83,7 @@ public class PostLogin {
                         }
                         if (server.joinGame(game.gameID(), input[2].toUpperCase())) {
                             ChessGame.TeamColor color = input[2].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-                            out.println(SET_TEXT_COLOR_GREEN + "Successfully joined game " + RESET_TEXT_COLOR + game.gameName() + " as " + color);
+                            out.println(SET_TEXT_COLOR_GREEN + "Successfully joined game " + RESET_TEXT_COLOR + game.gameName());
                             server.connectWS();
                             server.joinPlayer(game.gameID(), color);
                             inGame = true;

@@ -62,13 +62,8 @@ public class Gameplay {
                     Scanner scanner = new Scanner(System.in);
                     String confirmation = scanner.nextLine().trim().toLowerCase();
                     if (confirmation.equals("y") || confirmation.equals("yes")) {
-                        try {
-                            server.resign(gameID);
-                            out.println("You have resigned from the game.");
-                            inGame = false;
-                        } catch (Exception e) {
-                            out.println("Resignation failed: " + e.getMessage());
-                        }
+                        server.resign(gameID);
+                        inGame = false;
                     } else {
                         out.println("Resignation cancelled.");
                     }
