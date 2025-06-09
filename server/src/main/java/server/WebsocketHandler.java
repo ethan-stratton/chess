@@ -39,15 +39,29 @@ public class WebsocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         System.out.printf("Received: %s\n", message);
-        //session.getRemote().sendString("WebSocket response: " + message);
 
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
             case LEAVE:
                 handleLeave(session, (LeaveGame) command);
                 break;
-            // Add cases
+            case JOIN_PLAYER:
+                Server.gameSessions.replace(session, command.getGameID());
+                handleJoinPlayer(session, (JoinPlayer) command);
         }
+    }
+
+    private void handleJoinPlayer(Session session, JoinPlayer command) throws IOException {
+
+        try {
+            AuthData auth = Server.userAuthService.getAuth(command.getAuthToken());
+            Notification notif = new Notification("%s has joined the game as %s".formatted(auth.username(), command.getColorString()));
+            broadcastMessage(session, notif);
+        }
+        catch (UnauthorizedUserException e) {
+            sendError(session, new Error("Error: Not authorized"));
+        }
+
     }
 
     private void handleLeave(Session session, LeaveGame command) throws IOException {

@@ -24,6 +24,8 @@ import java.net.URISyntaxException;
         public void onOpen(Session session, EndpointConfig config) {
         }
 
+        //todo add notification and error message methods
+        //add move made method
         public void handleMessage(String message) {
             System.out.println(message);
         }

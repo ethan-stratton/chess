@@ -81,6 +81,8 @@ public class ServerFacade {
 
     public void joinPlayer(int gameID, ChessGame.TeamColor color) {
         //sendCommand
+        initializeWebSocket(gameID);
+        sendCommand(new JoinPlayer(authToken, gameID, color));
     }
 
     public void joinObserver(int gameID) {
@@ -90,13 +92,11 @@ public class ServerFacade {
     }
 
     public void leave(int gameID) {
-        //sendCommand(new LeaveGame(authToken, gameID));
-        if (ws != null && ws.session != null && ws.session.isOpen()) {
-            sendCommand(new LeaveGame(authToken, gameID));
-            closeWS();
-        } else {
-            System.out.println("Not connected to WebSocket");
+        if (ws == null || !ws.session.isOpen()) {
+            initializeWebSocket(gameID); // Reconnect?
         }
+        sendCommand(new LeaveGame(authToken, gameID));
+        closeWS();
     }
 
     public void resign(int gameID) {
