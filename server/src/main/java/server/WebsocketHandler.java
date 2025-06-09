@@ -39,30 +39,44 @@ public class WebsocketHandler {
         }
     }
 
-    //todo: add command types and implementation for websocket.commands
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         System.out.printf("Received: %s\n", message);
 
-        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
-        switch (command.getCommandType()) {
-            case LEAVE:
-                handleLeave(session, (LeaveGame) command);
-                break;
-            case JOIN_PLAYER:
+        try {
+            if (message.contains("\"commandType\":\"JOIN_PLAYER\"")) {
+                JoinPlayer command = new Gson().fromJson(message, JoinPlayer.class);
                 Server.gameSessions.replace(session, command.getGameID());
-                handleJoinPlayer(session, (JoinPlayer) command);
-                break;
-            case JOIN_OBSERVER:
+                handleJoinPlayer(session, command);
+            }
+            else if (message.contains("\"commandType\":\"JOIN_OBSERVER\"")) {
+                JoinObserver command = new Gson().fromJson(message, JoinObserver.class);
                 Server.gameSessions.replace(session, command.getGameID());
-                handleJoinObserver(session, (JoinObserver) command);
-                break;
-            case RESIGN:
-                handleResignation(session, (Resignation) command);
-                break;
-            case MAKE_MOVE:
-                handleMakeMove(session,(MakeChessMove) command);
-                break;
+                handleJoinObserver(session, command);
+            }
+            else if (message.contains("\"commandType\":\"MAKE_MOVE\"")) {
+                MakeChessMove command = new Gson().fromJson(message, MakeChessMove.class);
+                handleMakeMove(session, command);
+            }
+            else if (message.contains("\"commandType\":\"LEAVE\"")) {
+                LeaveGame command = new Gson().fromJson(message, LeaveGame.class);
+                handleLeave(session, command);
+            }
+            else if (message.contains("\"commandType\":\"RESIGN\"")) {
+                Resignation command = new Gson().fromJson(message, Resignation.class);
+                handleResignation(session, command);
+            }
+            else if (message.contains("\"commandType\":\"CONNECT\"")) {
+                // already handled in initializeWebSocket
+                System.out.println("Connection confirmed.");
+            }
+            else {
+                System.err.println("Unknown commandType in message: " + message);
+                sendError(session, new Error("Invalid command type"));
+            }
+        } catch (JsonSyntaxException e) {
+            System.err.println("Failed to parse WebSocket message: " + e.getMessage());
+            sendError(session, new Error("Malformed JSON"));
         }
     }
 
@@ -184,3 +198,5 @@ public class WebsocketHandler {
         }
     }
 }
+
+
