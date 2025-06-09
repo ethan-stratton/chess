@@ -1,8 +1,11 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
+import dataaccess.BadRequestException;
 import dataaccess.UnauthorizedUserException;
 import model.AuthData;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 
@@ -53,7 +56,42 @@ public class WebsocketHandler {
                 Server.gameSessions.replace(session, command.getGameID());
                 handleJoinObserver(session, (JoinObserver) command);
                 break;
+            case RESIGN:
+                handleResignation(session, (Resignation) command);
+                break;
         }
+    }
+
+    private void handleResignation(Session session, Resignation command) throws IOException {
+        try {
+            AuthData auth = Server.userAuthService.getAuth(command.getAuthToken());
+            GameData game = Server.gameService.getGameData(command.getAuthToken(), command.getGameID());
+            ChessGame.TeamColor userColor = getTeamColor(auth.username(), game);
+
+            String opponentUsername = userColor == ChessGame.TeamColor.WHITE ? game.blackUsername() : game.whiteUsername();
+
+            if (userColor == null) {
+                sendError(session, new Error("Error: You are observing this game"));
+                return;
+            }
+
+            Notification notif = new Notification("%s has forfeited, %s wins!".formatted(auth.username(), opponentUsername));
+            broadcastMessage(session, notif, true);
+        } catch (UnauthorizedUserException e) {
+            sendError(session, new Error("Error: Not authorized"));
+        } catch (BadRequestException e) {
+            sendError(session, new Error("Error: invalid game"));
+        }
+    }
+
+    private ChessGame.TeamColor getTeamColor(String username, GameData game) {
+        if (username.equals(game.whiteUsername())) {
+            return ChessGame.TeamColor.WHITE;
+        }
+        else if (username.equals(game.blackUsername())) {
+            return ChessGame.TeamColor.BLACK;
+        }
+        else return null;
     }
 
     private void handleJoinPlayer(Session session, JoinPlayer command) throws IOException {

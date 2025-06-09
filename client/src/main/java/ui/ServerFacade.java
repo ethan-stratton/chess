@@ -75,8 +75,15 @@ public class ServerFacade {
     }
 
     public void sendCommand(UserGameCommand command) {
-        String message = new Gson().toJson(command);
-        ws.sendMessage(message);
+        try {
+            if (ws == null || !ws.session.isOpen()) {
+                initializeWebSocket(command.getGameID());
+            }
+            String message = new Gson().toJson(command);
+            ws.sendMessage(message);
+        } catch (Exception e) {
+            System.out.println("Failed to send command: " + e.getMessage());
+        }
     }
 
     public void joinPlayer(int gameID, ChessGame.TeamColor color) {
@@ -102,6 +109,17 @@ public class ServerFacade {
     }
 
     public void resign(int gameID) {
+        try {
+            if (ws == null || !ws.session.isOpen()) {
+                initializeWebSocket(gameID);
+            }
+            sendCommand(new Resignation(authToken, gameID));
+            // Wait briefly to ensure message is sent
+            Thread.sleep(200);
+            closeWS();
+        } catch (Exception e) {
+            System.out.println("Resignation failed: " + e.getMessage());
+        }
     }
 
 

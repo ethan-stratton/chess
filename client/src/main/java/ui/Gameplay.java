@@ -57,8 +57,21 @@ public class Gameplay {
                         printMakeMove();
                     }
                     break;
-                case "resign": //todo
-                    resignation();
+                case "resign":
+                    out.println("Will you forfeit? (y/n)");
+                    Scanner scanner = new Scanner(System.in);
+                    String confirmation = scanner.nextLine().trim().toLowerCase();
+                    if (confirmation.equals("y") || confirmation.equals("yes")) {
+                        try {
+                            server.resign(gameID);
+                            out.println("You have resigned from the game.");
+                            inGame = false;
+                        } catch (Exception e) {
+                            out.println("Resignation failed: " + e.getMessage());
+                        }
+                    } else {
+                        out.println("Resignation cancelled.");
+                    }
                     break;
                 case "highlight":
                     if (input.length == 2 && input[1].matches("[a-h][1-8]")) {

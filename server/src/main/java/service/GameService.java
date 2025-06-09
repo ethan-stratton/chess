@@ -45,6 +45,30 @@ public class GameService {
         return gameID;
     }
 
+    public GameData getGameData(String authToken, int gameID) throws UnauthorizedUserException, BadRequestException {
+        try {
+            authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new UnauthorizedUserException("Unauthorized User");
+        }
+
+        try {
+            return gameDAO.getGame(gameID);
+        } catch (DataAccessException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    public void updateGame(String authToken, GameData gameData) throws UnauthorizedUserException {
+        try {
+            authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new UnauthorizedUserException("Unauthorized User");
+        }
+
+        gameDAO.updateGame(gameData);
+    }
+
     public int joinGame(String authToken, int gameID, String color) throws UnauthorizedUserException, DataAccessException, BadRequestException {
         if (color == null){
             return 1;
