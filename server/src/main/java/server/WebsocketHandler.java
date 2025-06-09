@@ -2,7 +2,7 @@ package server;
 
 import chess.ChessGame;
 import chess.InvalidMoveException;
-import com.google.gson.Gson;
+import com.google.gson.*;
 import dataaccess.BadRequestException;
 import dataaccess.UnauthorizedUserException;
 import model.AuthData;

@@ -42,6 +42,7 @@ public class Server {
     }
 
     public int run(int desiredPort) {
+        Spark.webSocketIdleTimeoutMillis(600000); // 10 minutes for testing
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 

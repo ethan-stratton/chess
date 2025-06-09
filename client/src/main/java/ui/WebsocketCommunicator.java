@@ -1,27 +1,39 @@
 package ui;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
+import websocket.messages.LoadGame;
+import websocket.messages.Notification;
+import websocket.messages.Error;
+import websocket.messages.ServerMessage;
+
+import ui.BoardToString;
+import ui.Gameplay;
+
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-    public class WebsocketCommunicator extends Endpoint {
+import static ui.EscapeSequences.ERASE_LINE;
+
+public class WebsocketCommunicator extends Endpoint {
 
         Session session;
 
         public WebsocketCommunicator(String serverDomain) throws Exception {
             try {
+
                 URI uri = new URI("ws://" + serverDomain + "/ws");
                 WebSocketContainer container = ContainerProvider.getWebSocketContainer();
                 this.session = container.connectToServer(this, uri);
-                //this.session.addMessageHandler((MessageHandler.Whole<String>) this::handleMessage);
+
                 this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                     @Override
                     public void onMessage(String message) {
                         handleMessage(message);
                     }
                 });
-
             } catch (DeploymentException | IOException | URISyntaxException ex) {
                 throw new Exception();
             }
@@ -32,18 +44,36 @@ import java.net.URISyntaxException;
         }
 
         //todo add notification and error message methods
-        //add move made method
         public void handleMessage(String message) {
             System.out.println(message);
-            //todo
-            //notification
-            //error
-            //printgame
+            if (message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
+                Notification notif = new Gson().fromJson(message, Notification.class);
+                printNotification(notif.getMessage());
+            }
+        else if (message.contains("\"serverMessageType\":\"ERROR\"")) {
+                Error error = new Gson().fromJson(message, Error.class);
+                printNotification(error.getMessage());
+            }
+            else if (message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
+                LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
+                printMoveMade(loadGame.getGame());
+            }
+        }
+
+        private void printNotification(String message) {
+            System.out.print(ERASE_LINE + '\r');
+            System.out.printf("\n%s\n[IN-GAME] >>> ", message);
+        }
+
+        private void printMoveMade(ChessGame game) {
+            System.out.print(ERASE_LINE + "\r\n");
+            Gameplay.boardRepr.updateGame(game);
+            Gameplay.boardRepr.printBoard(Gameplay.color, null);
+            System.out.print("[IN-GAME] >>> ");
         }
 
         public void sendMessage(String message) {
             this.session.getAsyncRemote().sendText(message);
         }
 
-        //todo: print executedMove method
     }

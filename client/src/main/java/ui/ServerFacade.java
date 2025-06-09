@@ -121,7 +121,6 @@ public class ServerFacade {
         }
     }
 
-
     public boolean logout() {
         return http.logout();
     }

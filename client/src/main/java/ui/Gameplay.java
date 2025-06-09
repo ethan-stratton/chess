@@ -15,17 +15,17 @@ import static ui.EscapeSequences.RESET_TEXT_COLOR;
 public class Gameplay {
 
     ServerFacade server;
-    BoardToString boardRepr;
+    static BoardToString boardRepr;
     ChessGame game;
     int gameID;
-    ChessGame.TeamColor color;
+    static ChessGame.TeamColor color;
 
     public Gameplay(ServerFacade server, GameData gameData, ChessGame.TeamColor color) {
         this.server = server;
         this.game = gameData.game();
-        this.boardRepr = new BoardToString(game);
+        boardRepr = new BoardToString(game);
         this.gameID = gameData.gameID();
-        this.color = color;
+        Gameplay.color = color;
     }
 
     public void run(){
