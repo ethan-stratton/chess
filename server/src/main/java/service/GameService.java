@@ -35,7 +35,6 @@ public class GameService {
             gameID = ThreadLocalRandom.current().nextInt(1, 10000); // in case the game ID is in use, will find another one
         } while (gameDAO.checkGameExists(gameID));
 
-        //gameDAO.createGame(new GameData(gameID, null, null, gameName, null));
         ChessGame game = new ChessGame();
         ChessBoard board = new ChessBoard();
         board.resetBoard();
@@ -77,7 +76,6 @@ public class GameService {
         if (!color.isEmpty() &&
                 !color.equalsIgnoreCase("WHITE") &&
                 !color.equalsIgnoreCase("BLACK")) {
-            //throw new BadRequestException("Invalid team color");
             return 1;
         }
         AuthData authData = authDAO.getAuth(authToken);

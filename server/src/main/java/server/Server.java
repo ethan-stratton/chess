@@ -26,7 +26,6 @@ public class Server {
     static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
 
     public Server() {
-
         try {
             DatabaseManager.initializeDatabase();
             userDAO = new SQLUserDAO();
@@ -35,7 +34,6 @@ public class Server {
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-
         userAuthService = new UserAuthService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);
 
@@ -77,7 +75,6 @@ public class Server {
     }
 
     private Object clear(Request req, Response resp) {
-
         try {
             clearDB();
             resp.status(200);

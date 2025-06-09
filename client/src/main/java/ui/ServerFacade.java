@@ -87,7 +87,6 @@ public class ServerFacade {
     }
 
     public void joinPlayer(int gameID, ChessGame.TeamColor color) {
-        //sendCommand
         initializeWebSocket(gameID);
         sendCommand(new JoinPlayer(authToken, gameID, color));
     }
@@ -97,7 +96,8 @@ public class ServerFacade {
         sendCommand(new JoinObserver(authToken, gameID));
     }
 
-    public void makeMove(int gameID, ChessMove move) {
+    public void makeChessMove(int gameID, ChessMove move) {
+        sendCommand(new MakeChessMove(authToken, gameID, move));
     }
 
     public void leave(int gameID) {
@@ -114,7 +114,6 @@ public class ServerFacade {
                 initializeWebSocket(gameID);
             }
             sendCommand(new Resignation(authToken, gameID));
-            // Wait briefly to ensure message is sent
             Thread.sleep(200);
             closeWS();
         } catch (Exception e) {
@@ -140,7 +139,6 @@ public class ServerFacade {
     }
 
     public boolean joinGame(int gameId, String playerColor) {
-        //return http.joinGame(gameId, playerColor);
         boolean success = http.joinGame(gameId, playerColor);
         if (success) {
             initializeWebSocket(gameId);
@@ -152,7 +150,6 @@ public class ServerFacade {
         try {
             if (ws == null || !ws.session.isOpen()) {
                 ws = new WebsocketCommunicator(serverDomain);
-                // send CONNECT command after establishing connection
                 sendCommand(new UserGameCommand(
                         UserGameCommand.CommandType.CONNECT,
                         authToken,

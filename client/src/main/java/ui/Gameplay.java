@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPosition;
 import ui.ServerFacade;
 import model.GameData;
@@ -44,12 +45,11 @@ public class Gameplay {
                     inGame = false;
                     server.leave(gameID);
                     break;
-                case "move":// todo
+                case "move":
                     if (input.length == 3 && input[1].matches("[a-h][1-8]") && input[2].matches("[a-h][1-8]")) {
-                        // make new chessPosition "from" and "to" based on user input
                         ChessPosition from = new ChessPosition(input[1].charAt(1) - '0', input[1].charAt(0) - ('a'-1));
                         ChessPosition to = new ChessPosition(input[2].charAt(1) - '0',input[2].charAt(0) - ('a'-1));
-                        makeMove(from, to);
+                        server.makeChessMove(gameID, new ChessMove(from, to, null));
                         break;
                     }
                     else {

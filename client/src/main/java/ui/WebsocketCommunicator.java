@@ -14,7 +14,14 @@ import java.net.URISyntaxException;
                 URI uri = new URI("ws://" + serverDomain + "/ws");
                 WebSocketContainer container = ContainerProvider.getWebSocketContainer();
                 this.session = container.connectToServer(this, uri);
-                this.session.addMessageHandler((MessageHandler.Whole<String>) this::handleMessage);
+                //this.session.addMessageHandler((MessageHandler.Whole<String>) this::handleMessage);
+                this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                    @Override
+                    public void onMessage(String message) {
+                        handleMessage(message);
+                    }
+                });
+
             } catch (DeploymentException | IOException | URISyntaxException ex) {
                 throw new Exception();
             }
@@ -28,26 +35,15 @@ import java.net.URISyntaxException;
         //add move made method
         public void handleMessage(String message) {
             System.out.println(message);
+            //todo
+            //notification
+            //error
+            //printgame
         }
 
         public void sendMessage(String message) {
             this.session.getAsyncRemote().sendText(message);
         }
 
-        //debug script
-//        public static void main(String[] args) {
-//            try {
-//                WebsocketCommunicator client = new WebsocketCommunicator("localhost:8080");
-//
-//                client.sendMessage("Hello Server!\n");
-//                client.sendMessage("Another test message");
-//
-//                // keep connection open briefly to get the response
-//                Thread.sleep(5000);
-//
-//                client.session.close();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
+        //todo: print executedMove method
     }

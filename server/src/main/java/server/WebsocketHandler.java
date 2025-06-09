@@ -1,6 +1,7 @@
 package server;
 
 import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.BadRequestException;
 import dataaccess.UnauthorizedUserException;
@@ -59,6 +60,38 @@ public class WebsocketHandler {
             case RESIGN:
                 handleResignation(session, (Resignation) command);
                 break;
+            case MAKE_MOVE:
+                handleMakeMove(session,(MakeChessMove) command);
+                break;
+        }
+    }
+
+    private void handleMakeMove(Session session, MakeChessMove command) throws IOException {
+        try {
+            AuthData auth = Server.userAuthService.getAuth(command.getAuthToken());
+            GameData game = Server.gameService.getGameData(command.getAuthToken(), command.getGameID());
+            ChessGame.TeamColor userColor = getTeamColor(auth.username(), game);
+            if (userColor == null) {
+                sendError(session, new Error("Error: You are observing this game"));
+                return;
+            }
+
+            if (game.game().getTeamTurn().equals(userColor)) {
+                game.game().makeMove(command.getMove());
+                Server.gameService.updateGame(auth.authToken(), game);
+                LoadGame load = new LoadGame(game.game());
+                broadcastMessage(session, load, true);
+            }
+            else {
+                sendError(session, new Error("Error: Not your turn"));
+            }
+        }
+        catch (UnauthorizedUserException e) {
+            sendError(session, new Error("Error: Not authorized"));
+        } catch (BadRequestException e) {
+            sendError(session, new Error("Error: invalid game"));
+        } catch (InvalidMoveException e) {
+            sendError(session, new Error("Error: invalid move"));
         }
     }
 
