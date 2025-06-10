@@ -42,7 +42,6 @@ public class WebsocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         System.out.printf("Received: %s\n", message);
-
         try {
             if (message.contains("\"commandType\":\"JOIN_PLAYER\"")) {
                 JoinPlayer command = new Gson().fromJson(message, JoinPlayer.class);
@@ -89,7 +88,6 @@ public class WebsocketHandler {
                 sendError(session, new Error("Error: You are observing this game"));
                 return;
             }
-
             if (game.game().getTeamTurn().equals(userColor)) {
                 game.game().makeMove(command.getMove());
                 Server.gameService.updateGame(auth.authToken(), game);
@@ -105,7 +103,8 @@ public class WebsocketHandler {
         } catch (BadRequestException e) {
             sendError(session, new Error("Error: invalid game"));
         } catch (InvalidMoveException e) {
-            sendError(session, new Error("Error: invalid move"));
+            System.out.println("Error: " + e.getMessage() + "  " + command.getMove().toString());
+            sendError(session, new Error("Error: you may need to specify a promotion piece"));
         }
     }
 
@@ -113,10 +112,8 @@ public class WebsocketHandler {
         try {
             AuthData auth = Server.userAuthService.getAuth(command.getAuthToken());
             GameData game = Server.gameService.getGameData(command.getAuthToken(), command.getGameID());
-
             String winner = game.whiteUsername().equals(auth.username()) ?
                     game.blackUsername() : game.whiteUsername();
-
             Notification notif = new Notification(String.format(
                     "%s has resigned. %s wins!",
                     auth.username(),
@@ -179,6 +176,7 @@ public class WebsocketHandler {
     }
 
     private void sendError(Session session, Error error) throws IOException {
+        //System.out.printf("Error: %s%n", new Gson().toJson(error));
         session.getRemote().sendString(new Gson().toJson(error));
     }
 

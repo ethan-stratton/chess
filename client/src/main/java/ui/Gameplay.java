@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import ui.ServerFacade;
 import model.GameData;
@@ -46,24 +47,19 @@ public class Gameplay {
                     server.leave(gameID);
                     break;
                 case "move":
-                    if (input.length == 3 && input[1].matches("[a-h][1-8]") && input[2].matches("[a-h][1-8]")) {
-                        ChessPosition from = new ChessPosition(input[1].charAt(1) - '0', input[1].charAt(0) - ('a'-1));
-                        ChessPosition to = new ChessPosition(input[2].charAt(1) - '0',input[2].charAt(0) - ('a'-1));
-                        server.makeChessMove(gameID, new ChessMove(from, to, null));
-                        break;
-                    }
-                    else {
-                        out.println("Please provide a <to> and <from> coordinate (ex: 'a1 b2')");
-                        printMakeMove();
-                    }
+                    makeMove(input);
                     break;
                 case "resign":
                     out.println("Will you forfeit? (y/n)");
                     Scanner scanner = new Scanner(System.in);
                     String confirmation = scanner.nextLine().trim().toLowerCase();
                     if (confirmation.equals("y") || confirmation.equals("yes")) {
-                        server.resign(gameID);
-                        inGame = false;
+                        try {
+                            server.resign(gameID);
+                            inGame = false;
+                        } catch (Exception e) {
+                            out.println("Error resigning: " + e.getMessage());
+                        }
                     } else {
                         out.println("Resignation cancelled.");
                     }
@@ -96,19 +92,56 @@ public class Gameplay {
     }
 
     private void printMakeMove() {
-        out.println("move <from> <to> - make a chess move");
+        out.println("move <from> <to> [promotion] - make a chess move");
+        out.println("  promotion options: queen, rook, bishop, knight");
+        out.println("  example: move f4 f5");
+        out.println("  example: move a7 a8 queen");
     }
 
     private void printHighlight() {
         out.println("highlight <coordinate> - highlight all legal moves for chosen piece");
     }
 
-    private void makeMove(ChessPosition from, ChessPosition to) {
+    private void makeMove(String[] input) {
+        if (input.length >= 3 && input[1].matches("[a-h][1-8]") && input[2].matches("[a-h][1-8]")) {
+            ChessPosition from = new ChessPosition(input[1].charAt(1) - '0', input[1].charAt(0) - ('a'-1));
+            ChessPosition to = new ChessPosition(input[2].charAt(1) - '0', input[2].charAt(0) - ('a'-1));
 
+            if (from.equals(to)) {
+                out.println("Error: Start and end positions cannot be the same");
+                return;
+            }
+
+            // promotion logic
+            ChessPiece.PieceType promotion = null;
+            if (input.length == 4) {
+                promotion = getPieceType(input[3]);
+                if (promotion == null) {
+                    out.println("Error: Invalid promotion piece. Use: queen, rook, bishop, knight");
+                    return;
+                }
+            }
+
+            server.makeChessMove(gameID, new ChessMove(from, to, promotion));
+        } else {
+            out.println("Invalid format. Use: move <from> <to> [promotion]");
+            printMakeMove();
+        }
+    }
+
+    public ChessPiece.PieceType getPieceType(String name) {
+        ChessPiece.PieceType newType = null;
+        return switch (name.toUpperCase()) {
+            case "QUEEN" -> ChessPiece.PieceType.QUEEN;
+            case "BISHOP" -> ChessPiece.PieceType.BISHOP;
+            case "KNIGHT" -> ChessPiece.PieceType.KNIGHT;
+            case "ROOK" -> ChessPiece.PieceType.ROOK;
+            case "PAWN" -> ChessPiece.PieceType.PAWN;
+            default -> null;
+        };
     }
 
     private void resignation() {
-
     }
 
     private void printHelpMenu() {

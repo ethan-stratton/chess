@@ -52,6 +52,9 @@ public class WebsocketCommunicator extends Endpoint {
                 Notification notif = new Gson().fromJson(message, Notification.class);
                 printNotification(notif.getMessage());
             }
+            //add error class with error message
+            //System.out.print(ERASE_LINE + "\r");
+            //System.out.println(SET_TEXT_COLOR_RED + "[ERROR] " + message + RESET_TEXT_COLOR);
             else if (message.contains("\"serverMessageType\":\"ERROR\"")) {
                 Error error = new Gson().fromJson(message, Error.class);
                 printNotification(error.getMessage());
@@ -73,5 +76,4 @@ public class WebsocketCommunicator extends Endpoint {
         public void sendMessage(String message) {
             this.session.getAsyncRemote().sendText(message);
         }
-
     }
