@@ -17,6 +17,7 @@ import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.lang.Error;
+import java.util.Objects;
 
 @WebSocket
 public class WebsocketHandler {
@@ -141,12 +142,38 @@ public class WebsocketHandler {
     private void handleJoinPlayer(Session session, JoinPlayer command) throws IOException {
         try {
             AuthData auth = Server.userAuthService.getAuth(command.getAuthToken());
+            GameData game = Server.gameService.getGameData(command.getAuthToken(), command.getGameID());
+
+            ChessGame.TeamColor joiningColor = command.getColorString().equalsIgnoreCase("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+
+            boolean correctColor = false;
+            if (joiningColor == ChessGame.TeamColor.WHITE) {
+                correctColor = Objects.equals(game.whiteUsername(), auth.username());
+            }
+            else {
+                correctColor = Objects.equals(game.blackUsername(), auth.username());
+            }
+
+            if (!correctColor) {
+                Error error = new Error("Error: attempting to join with wrong color");
+                sendError(session, error);
+                return;
+            }
+
             Notification notif = new Notification("%s has joined the game as %s".formatted(auth.username(), command.getColorString()));
             broadcastMessage(session, notif);
+            LoadGame load = new LoadGame(game.game());
+            sendMessage(session, load);
         }
         catch (UnauthorizedUserException e) {
             sendError(session, new Error("Error: Not authorized"));
+        } catch (BadRequestException e) {
+            sendError(session, new Error("Error: Not a valid game"));
         }
+    }
+
+    public void sendMessage(Session session, ServerMessage message) throws IOException {
+        session.getRemote().sendString(new Gson().toJson(message));
     }
 
     private void handleJoinObserver(Session session, JoinObserver command) throws IOException {
