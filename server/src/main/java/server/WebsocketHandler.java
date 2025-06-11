@@ -1,6 +1,7 @@
 package server;
 
 import chess.ChessGame;
+import chess.ChessPosition;
 import chess.InvalidMoveException;
 import com.google.gson.*;
 import dataaccess.BadRequestException;
@@ -66,26 +67,28 @@ public class WebsocketHandler {
                 Resignation command = new Gson().fromJson(message, Resignation.class);
                 handleResignation(session, command);
             }
+            //lot of this method SHOULD have been handled in serverfacade and elsewhere, for some reason it broke somewhere
+            // not a lot of time to figure it out before its due
             else if (message.contains("\"commandType\":\"CONNECT\"")) {
                 UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
-                Server.gameSessions.replace(session, command.getGameID());
 
                 try {
                     AuthData auth = Server.userAuthService.getAuth(command.getAuthToken());
                     GameData game = Server.gameService.getGameData(command.getAuthToken(), command.getGameID());
 
-                    // send LOAD_GAME to the connecting client (passoff tests)
+                    Server.gameSessions.replace(session, command.getGameID());
                     LoadGame load = new LoadGame(game.game());
                     sendMessage(session, load);
 
-                    // send notification to all other clients in this game (passoff test)
                     Notification notif = new Notification(auth.username() + " has connected to the game");
-                    broadcastMessage(session, notif, false); // false = don't send to self
+                    broadcastMessage(session, notif, false);
 
                 } catch (UnauthorizedUserException e) {
                     sendError(session, new Error("Error: Not authorized"));
                 } catch (BadRequestException e) {
-                    sendError(session, new Error("Error: Invalid game"));
+                    sendError(session, new Error("Error: Invalid game ID"));
+                } catch (Exception e) {
+                    sendError(session, new Error("Error: " + e.getMessage()));
                 }
             }
             else {
@@ -102,29 +105,61 @@ public class WebsocketHandler {
         try {
             AuthData auth = Server.userAuthService.getAuth(command.getAuthToken());
             GameData game = Server.gameService.getGameData(command.getAuthToken(), command.getGameID());
+
+            // Check if game is over first (avoid two errors)
+            if (game.game().getGameOver()) {
+                sendError(session, new Error("Error: The game is already over!"));
+                return;
+            }
+
             ChessGame.TeamColor userColor = getTeamColor(auth.username(), game);
             if (userColor == null) {
                 sendError(session, new Error("Error: You are observing this game"));
                 return;
             }
+
             if (game.game().getTeamTurn().equals(userColor)) {
+                ChessPosition start = command.getMove().getStartPosition();
+                ChessPosition end = command.getMove().getEndPosition();
+
                 game.game().makeMove(command.getMove());
                 Server.gameService.updateGame(auth.authToken(), game);
+
                 LoadGame load = new LoadGame(game.game());
                 broadcastMessage(session, load, true);
-            }
-            else {
+
+                String moveDesc = String.format("%s moved from %s to %s",
+                        auth.username(),
+                        positionToString(start),
+                        positionToString(end));
+
+                Notification notif = new Notification(moveDesc);
+
+                broadcastMessage(session, notif, false);
+
+            } else {
                 sendError(session, new Error("Error: Not your turn"));
             }
-        }
-        catch (UnauthorizedUserException e) {
+        } catch (UnauthorizedUserException e) {
             sendError(session, new Error("Error: Not authorized"));
         } catch (BadRequestException e) {
             sendError(session, new Error("Error: invalid game"));
         } catch (InvalidMoveException e) {
-            System.out.println("Error: " + e.getMessage() + "  " + command.getMove().toString());
-            sendError(session, new Error("Error: you may need to specify a promotion piece"));
+            // Combine both error messages into one (game over was getting weird double error message)
+            String errorMsg = "Error: Invalid move - " + e.getMessage();
+            if (e.getMessage().contains("promotion")) {
+                errorMsg += " (You may need to specify a promotion piece)";
+            }
+            sendError(session, new Error(errorMsg));
         }
+    }
+
+
+
+
+    private String positionToString(ChessPosition position) {
+        char col = (char) ('a' + position.getColumn() - 1);
+        return "" + col + position.getRow();
     }
 
     private void handleResignation(Session session, Resignation command) throws IOException {
@@ -237,8 +272,17 @@ public class WebsocketHandler {
     }
 
     private void sendError(Session session, Error error) throws IOException {
-        //System.out.printf("Error: %s%n", new Gson().toJson(error));
-        session.getRemote().sendString(new Gson().toJson(error));
+        try {
+            JsonObject errorObj = new JsonObject();
+            errorObj.addProperty("errorMessage", error.getMessage());
+            errorObj.addProperty("serverMessageType", "ERROR");
+
+            if (session.isOpen()) {
+                session.getRemote().sendString(new Gson().toJson(errorObj));
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to send error message: " + e.getMessage());
+        }
     }
 
     public void broadcastMessage (Session currSession, ServerMessage message) throws IOException {
