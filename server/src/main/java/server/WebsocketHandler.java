@@ -67,8 +67,26 @@ public class WebsocketHandler {
                 handleResignation(session, command);
             }
             else if (message.contains("\"commandType\":\"CONNECT\"")) {
-                // already handled in initializeWebSocket
-                System.out.println("Connection confirmed.");
+                UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+                Server.gameSessions.replace(session, command.getGameID());
+
+                try {
+                    AuthData auth = Server.userAuthService.getAuth(command.getAuthToken());
+                    GameData game = Server.gameService.getGameData(command.getAuthToken(), command.getGameID());
+
+                    // send LOAD_GAME to the connecting client (passoff tests)
+                    LoadGame load = new LoadGame(game.game());
+                    sendMessage(session, load);
+
+                    // send notification to all other clients in this game (passoff test)
+                    Notification notif = new Notification(auth.username() + " has connected to the game");
+                    broadcastMessage(session, notif, false); // false = don't send to self
+
+                } catch (UnauthorizedUserException e) {
+                    sendError(session, new Error("Error: Not authorized"));
+                } catch (BadRequestException e) {
+                    sendError(session, new Error("Error: Invalid game"));
+                }
             }
             else {
                 System.err.println("Unknown commandType in message: " + message);
@@ -113,8 +131,24 @@ public class WebsocketHandler {
         try {
             AuthData auth = Server.userAuthService.getAuth(command.getAuthToken());
             GameData game = Server.gameService.getGameData(command.getAuthToken(), command.getGameID());
+            ChessGame.TeamColor userColor = getTeamColor(auth.username(), game);
             String winner = game.whiteUsername().equals(auth.username()) ?
                     game.blackUsername() : game.whiteUsername();
+            String opponentUsername = userColor == ChessGame.TeamColor.WHITE ? game.blackUsername() : game.whiteUsername();
+
+            if (userColor == null) {
+                sendError(session, new Error("Error: You are observing this game"));
+                return;
+            }
+
+            if (game.game().getGameOver()) {
+                sendError(session, new Error("Error: The game is already over!"));
+                return;
+            }
+
+            game.game().setGameOver(true);
+            Server.gameService.updateGame(auth.authToken(), game);
+
             Notification notif = new Notification(String.format(
                     "%s has resigned. %s wins!",
                     auth.username(),
@@ -217,8 +251,8 @@ public class WebsocketHandler {
             boolean inAGame = Server.gameSessions.get(session) != 0;
             boolean sameGame = Server.gameSessions.get(session).equals(Server.gameSessions.get(currSession));
             boolean isSelf = session == currSession;
-            if ((toSelf || !isSelf) && inAGame && sameGame) {
-                session.getRemote().sendString(new Gson().toJson(message));
+            if ((toSelf || !isSelf) && inAGame && sameGame && session.isOpen()) {
+                sendMessage(session, message);
             }
         }
     }

@@ -14,6 +14,7 @@ public class ChessGame {
 
     private TeamColor teamTurn;
     private ChessBoard board;
+    private boolean isGameOver;
 
     @Override
     public boolean equals(Object o) {
@@ -44,6 +45,13 @@ public class ChessGame {
                 "teamTurn=" + teamTurn +
                 ", board=" + board +
                 '}';
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.isGameOver = gameOver;
+    }
+    public boolean getGameOver() {
+        return isGameOver;
     }
 
 
