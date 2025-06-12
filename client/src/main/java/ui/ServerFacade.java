@@ -102,7 +102,7 @@ public class ServerFacade {
 
     public void leave(int gameID) {
         if (ws == null || !ws.session.isOpen()) {
-            initializeWebSocket(gameID); // Reconnect?
+            initializeWebSocket(gameID);
         }
         sendCommand(new LeaveGame(authToken, gameID));
         closeWS();
@@ -138,6 +138,7 @@ public class ServerFacade {
     }
 
     public boolean joinGame(int gameId, String playerColor) {
+        closeWS();
         boolean success = http.joinGame(gameId, playerColor);
         if (success) {
             initializeWebSocket(gameId);

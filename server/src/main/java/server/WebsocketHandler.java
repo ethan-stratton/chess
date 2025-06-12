@@ -259,6 +259,25 @@ public class WebsocketHandler {
     private void handleLeave(Session session, LeaveGame command) throws IOException {
         try {
             AuthData auth = Server.userAuthService.getAuth(command.getAuthToken());
+            GameData game = Server.gameService.getGameData(command.getAuthToken(), command.getGameID());
+
+            String whiteUser = game.whiteUsername();
+            String blackUser = game.blackUsername();
+
+            if (auth.username().equals(whiteUser)) {
+                whiteUser = null;
+            } else if (auth.username().equals(blackUser)) {
+                blackUser = null;
+            }
+
+            GameData updatedGame = new GameData(
+                    game.gameID(),
+                    whiteUser,
+                    blackUser,
+                    game.gameName(),
+                    game.game()
+            );
+            Server.gameService.updateGame(command.getAuthToken(), updatedGame);
 
             Notification notif = new Notification("%s has left the game".formatted(auth.username()));
             broadcastMessage(session, notif);
@@ -268,6 +287,8 @@ public class WebsocketHandler {
 
         } catch (UnauthorizedUserException e) {
             sendError(session, new Error("Error: Not authorized"));
+        } catch (BadRequestException e) {
+            sendError(session, new Error("Error: Invalid game"));
         }
     }
 
